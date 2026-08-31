@@ -1321,7 +1321,15 @@ function renderList(){
         (e.year?'<span class="yr">'+esc(e.year)+'</span>':'') + '</div>').join('') +
       '</div>';
   }).join('');
-  box.querySelectorAll('.item').forEach(el=>el.onclick=()=>{ ui.openId = el.dataset.id; ui.editing = undefined; render(); });
+  box.querySelectorAll('.item').forEach(el=>el.onclick=()=>{
+    /* 点击词条后保持侧栏列表与窗口滚动位置，避免重新渲染后跳到顶端 */
+    const prevAside = (document.querySelector('aside')||{scrollTop:0}).scrollTop;
+    const prevWin = window.scrollY;
+    ui.openId = el.dataset.id; ui.editing = undefined; render();
+    const as2 = document.querySelector('aside');
+    if(as2) as2.scrollTop = prevAside;
+    window.scrollTo(0, prevWin);
+  });
   box.querySelectorAll('.gadd').forEach(b=>b.onclick = ev=>{
     ev.stopPropagation();
     newWithTemplate(b.dataset.type);
@@ -2116,6 +2124,13 @@ function renderTimeline(){
       ctx.strokeStyle = '#d3d1c7';
       ctx.beginPath(); ctx.moveTo(x1+30, 6); ctx.lineTo(x1+30, CH-6); ctx.stroke();
       const inner = seg.w - 2*PAD;
+      /* 画一个年份刻度：竖线 + 横轴下方的年份数字 */
+      const drawTick = (t, sx)=>{
+        ctx.strokeStyle = '#d3d1c7';
+        ctx.beginPath(); ctx.moveTo(sx, AXIS_Y); ctx.lineTo(sx, AXIS_Y+6); ctx.stroke();
+        ctx.fillStyle = '#888780';
+        ctx.fillText(tickLabel(Math.round(t), seg.era), sx, AXIS_Y+18);
+      };
       if(seg.max > seg.min){
         const step = Math.max(niceStep((seg.max-seg.min)/Math.max(inner,1)*90), 1);
         const t0 = Math.ceil((seg.min-1e-9)/step)*step;
@@ -2125,10 +2140,7 @@ function renderTimeline(){
           if(seg.era==='公元' && Math.abs(t) < 1e-9) continue;
           const sx = toS(seg.x0 + PAD + (t-seg.min)/(seg.max-seg.min)*inner);
           if(sx < -40 || sx > cssW+40) continue;
-          ctx.strokeStyle = '#d3d1c7';
-          ctx.beginPath(); ctx.moveTo(sx, AXIS_Y); ctx.lineTo(sx, AXIS_Y+6); ctx.stroke();
-          ctx.fillStyle = '#888780';
-          ctx.fillText(tickLabel(t, seg.era), sx, AXIS_Y+18);
+          drawTick(t, sx);
         }
         if(seg.era==='公元' && seg.min<0 && seg.max>0){
           const zx = toS(seg.x0 + PAD + (0-seg.min)/(seg.max-seg.min)*inner);
@@ -2137,6 +2149,10 @@ function renderTimeline(){
           ctx.fillStyle = '#534AB7';
           ctx.fillText('公元元年', zx, 42);
         }
+      } else {
+        /* 段内只有一个年份（或所有词条同年）：在段中心标出该年份，保证横轴始终显示年份 */
+        const sx = toS(seg.x0 + PAD + inner/2);
+        if(sx > -40 && sx < cssW+40) drawTick(seg.min, sx);
       }
     }
 
