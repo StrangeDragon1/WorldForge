@@ -125,6 +125,9 @@
   .gadd{margin-left:auto; border:none; background:none; color:var(--tx3); cursor:pointer; font-size:14px; line-height:1; padding:0 6px; border-radius:5px; font-family:inherit; opacity:0; transition:all .15s ease;}
   .group h4:hover .gadd{opacity:1;}
   .gadd:hover{background:var(--accent-bg); color:var(--accent);}
+  .gch{cursor:pointer; color:var(--tx2); font-size:16px; line-height:1; padding:2px 6px; border-radius:5px; user-select:none; font-weight:600;}
+  .gch:hover{color:var(--accent); background:var(--accent-bg);}
+  .group.collapsed .item{display:none;}
   .item{display:flex; align-items:center; gap:9px; padding:7px 10px; border-radius:var(--radius-s); cursor:pointer; transition:all .12s ease; color:var(--tx2);}
   .item:hover{background:var(--bg2); color:var(--tx);}
   .item.on{background:var(--accent-bg); color:var(--accent-text); font-weight:600; box-shadow:inset 2px 0 0 var(--accent);}
@@ -208,9 +211,26 @@
   .fam-node.dup{opacity:.58;}
   .fam-nm{font-size:14.5px; font-weight:600; fill:var(--tx); text-anchor:middle;}
   .fam-sub{font-size:11.5px; fill:var(--tx3); text-anchor:middle;}
+  .fam-search{display:flex; align-items:center; gap:6px; flex-shrink:0;}
+  .fam-search input{width:230px; height:32px; padding:0 10px; border:1px solid var(--bd); border-radius:8px; font-size:13px; font-family:inherit; background:var(--bg); color:var(--tx);}
+  .fam-search input:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(63,93,128,.12);}
   #graphBox{background:var(--bg); border:1px solid var(--bd); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow);}
   #graph{display:block; width:100%; cursor:grab;}
   .ghint{font-size:12px; color:var(--tx3); margin-top:10px;}
+  .graph-page{display:flex; gap:16px; max-width:1240px; align-items:stretch;}
+  .graph-side{width:252px; flex-shrink:0; background:var(--bg); border:1px solid var(--bd); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; max-height:680px; text-align:left;}
+  .gs-title{padding:12px 14px; font-family:var(--serif); font-weight:600; font-size:15px; border-bottom:1px solid var(--bd);}
+  .gs-search{padding:10px 12px; border-bottom:1px solid var(--bd);}
+  .gs-search input{width:100%; height:32px; padding:0 10px; border:1px solid var(--bd); border-radius:8px; font-size:13px; font-family:inherit; background:var(--bg2); color:var(--tx);}
+  .gs-search input:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(63,93,128,.12);}
+  #gsList{overflow-y:auto; padding:6px 8px 10px; flex:1; text-align:left;}
+  .gs-type{font-size:11px; color:var(--tx3); padding:8px 4px 3px; display:flex; align-items:center; gap:6px; text-align:left; justify-content:flex-start;}
+  .gs-type > span:last-child{margin-left:auto; font-size:10.5px;}
+  .gs-item{font-size:13px; padding:6px 9px; border-radius:7px; cursor:pointer; color:var(--tx); text-align:left; display:block;}
+  .gs-item:hover{background:var(--bg2);}
+  .gs-item.on{background:var(--accent-bg); color:var(--accent-text); font-weight:600;}
+  .graph-main{flex:1; min-width:0;}
+  .graph-main #graphBox{max-height:620px;}
   #tlBox{position:relative; background:var(--bg); border:1px solid var(--bd); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow);}
   #tlCanvas{display:block; width:100%; cursor:grab;}
   .tl-tip{position:absolute; display:none; background:var(--bg); border:1px solid var(--bd2); border-radius:9px; padding:9px 12px; font-size:12px; box-shadow:0 6px 20px rgba(43,42,40,.13); max-width:320px; z-index:5; line-height:1.6;}
@@ -442,7 +462,7 @@ const state = { root:null, rootName:'data', connected:false, entries:[], eraList
 const SERVER_MODE = (location.protocol === 'http:');
 const TAB_IDS = {entries:1, timeline:1, graph:1, family:1, maps:1, data:1};
 const ui = {tab:'entries', openId:null, editing:undefined, search:'', typeFilter:'all',
-            view:'list', filters:[], mapId:null};
+            view:'list', filters:[], mapId:null, famFocus:null, collapsed:{}, gsCollapsed:{}, gsQuery:''};
 
 /* ============ 文件系统层 ============ */
 async function getDir(name, create){
@@ -992,6 +1012,11 @@ document.getElementById('worldSel').addEventListener('change', ()=>{
 
 /* ============ 工具函数 ============ */
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+/* 防抖：搜索/重过滤等在停止输入一段时间后再执行，避免大世界观下每键全量过滤 */
+function debounce(fn, ms){
+  let t = null;
+  return function(...args){ clearTimeout(t); t = setTimeout(()=>fn.apply(this, args), ms||200); };
+}
 function entryById(id){ return state.entries.find(e=>e.id===id); }
 function aliasesOf(e){ return (e.aliases||[]).filter(Boolean); }
 function namesOf(e){ return [e.name, ...aliasesOf(e)].filter(Boolean); }
@@ -1246,7 +1271,7 @@ function renderEntries(){
   aside.className = ui.view === 'table' ? 'tbl' : '';
 
   aside.querySelector('#btnNew').onclick = ()=>openTemplatePicker();
-  aside.querySelector('#searchBox').oninput = (ev)=>{ ui.search = ev.target.value; renderList(); renderMain(); };
+  aside.querySelector('#searchBox').oninput = debounce((ev)=>{ ui.search = ev.target.value; renderList(); renderMain(); }, 220);
   aside.querySelector('#typeFilter').onchange = (ev)=>{
     ui.typeFilter = ev.target.value;
     const labels = allFieldLabels(ui.typeFilter);
@@ -1386,7 +1411,10 @@ function renderList(){
   for(const e of list){ (groups[e.type] = groups[e.type]||[]).push(e); }
   box.innerHTML = Object.entries(groups).map(([t, es])=>{
     const tp = TYPES[t]||TYPES.lore;
-    return '<div class="group"><h4>'+tp.label+' · '+es.length+
+    const col = !!ui.collapsed[t];
+    return '<div class="group'+(col?' collapsed':'')+'"><h4>' +
+      '<span class="gch" data-type="'+t+'" title="'+(col?'展开':'收起')+tp.label+'">'+(col?'▸':'▾')+'</span>' +
+      tp.label+' · '+es.length+
       '<button class="gadd" data-type="'+t+'" title="用'+tp.label+'的默认模板新建">＋</button></h4>' +
       es.map(e=>'<div class="item'+(e.id===ui.openId&&!ui.editing?' on':'')+'" data-id="'+esc(e.id)+'">' +
         '<span class="dot" style="background:'+tp.color+'"></span>' +
@@ -1394,6 +1422,12 @@ function renderList(){
         (e.year?'<span class="yr">'+esc(e.year)+'</span>':'') + '</div>').join('') +
       '</div>';
   }).join('');
+  box.querySelectorAll('.gch').forEach(ch=>ch.onclick = ev=>{
+    ev.stopPropagation();
+    const t = ch.dataset.type;
+    ui.collapsed[t] = !ui.collapsed[t];
+    renderList();
+  });
   box.querySelectorAll('.item').forEach(el=>el.onclick=()=>{
     /* 点击词条后保持侧栏列表与窗口滚动位置，避免重新渲染后跳到顶端 */
     const prevAside = (document.querySelector('aside')||{scrollTop:0}).scrollTop;
@@ -2511,97 +2545,116 @@ function buildFamilyTree(){
   for(const e of people){ const r = find(e.id); (groups[r] = groups[r] || []).push(e.id); }
   return {people, parentOf, childrenOf, groups};
 }
-/* 以「配偶组」为最小单元布局；组内横向排列（用配偶连线连起来），孩子挂在组下方 */
-function layoutForest(groups, childrenOf){
+/* 以「配偶组」为最小单元的谱系布局：孩子居中于其父母(双方家长)之间，夫妻占一行 */
+function layoutForest(groups, parentOf, childrenOf){
   const NODE_W = 144, SPOUSE_GAP = 32, GAP_X = 24, LEVEL_H = 112;
-  function unitOf(id){
-    for(const k in groups){ if(groups[k].indexOf(id) >= 0) return groups[k].slice(); }
-    return [id];
-  }
-  function unitKey(u){ return u.slice().sort().join('|'); }
-  function unitWidth(u){ return u.length * NODE_W + (u.length - 1) * SPOUSE_GAP; }
-  function unitChildren(u){
-    const out = [], seen = {};
-    for(const id of u){
-      for(const k of (childrenOf[id]||[])){
-        const ku = unitKey(unitOf(k));
-        if(seen[ku]) continue;
-        seen[ku] = 1;
-        out.push(k);
-      }
+  const keyOf = {};
+  for(const k in groups) for(const id of groups[k]) keyOf[id] = k;
+  const unitKey = u => u.slice().sort().join('|');
+  const unitWidth = u => u.length * NODE_W + (u.length - 1) * SPOUSE_GAP;
+  const pu = {}, cu = {};
+  for(const k in groups){ pu[k] = new Set(); cu[k] = new Set(); }
+  for(const k in groups){
+    for(const id of groups[k]){
+      for(const p of (parentOf[id]||[])) if(keyOf[p]!=null) pu[k].add(keyOf[p]);
+      for(const c of (childrenOf[id]||[])) if(keyOf[c]!=null) cu[k].add(keyOf[c]);
     }
-    return out;
   }
-  const wcache = {}, busy = {};
-  function measureUnit(u){
-    const k = unitKey(u);
-    if(wcache[k]) return wcache[k];
-    if(busy[k]) return unitWidth(u) + GAP_X;
-    busy[k] = 1;
-    let kidsW = 0;
-    for(const c of unitChildren(u)) kidsW += measureUnit(unitOf(c));
-    wcache[k] = Math.max(unitWidth(u) + GAP_X, kidsW);
-    delete busy[k];
-    return wcache[k];
+  const memo = {}, busy = {};
+  function widthOf(k){
+    if(memo[k]!=null) return memo[k];
+    if(busy[k]) return unitWidth(groups[k]) + GAP_X;
+    busy[k] = 1; let kids = 0;
+    for(const c of (cu[k]||[])) kids += widthOf(c);
+    memo[k] = Math.max(unitWidth(groups[k]) + GAP_X, kids);
+    return memo[k];
   }
-  const out = [], seenUnits = {}, spouseEdges = [], childEdges = [], unitKeyById = {};
-  function placeUnit(u, depth, left){
-    if(depth > 8) return;
-    const k = unitKey(u);
-    if(seenUnits[k]) return;
-    seenUnits[k] = 1;
-    const w = measureUnit(u);
-    const uw = unitWidth(u);
-    const x0 = left + (w - uw) / 2;
+  const roots = [];
+  for(const k in groups) if(!pu[k] || !pu[k].size) roots.push(k);
+  if(!roots.length && Object.keys(groups).length) roots.push(Object.keys(groups)[0]);
+  const order = [], seen = {};
+  function visit(k){ if(seen[k]) return; seen[k] = 1; for(const p of (pu[k]||[])) visit(p); order.push(k); }
+  for(const r of roots) visit(r);
+  for(const k in groups) visit(k);
+  const level = {};
+  for(const k of order){
+    let mx = -1; for(const p of (pu[k]||[])) mx = Math.max(mx, level[p]==null?-1:level[p]);
+    level[k] = mx + 1;
+  }
+  const xc = {}, occByLevel = {};
+  let curLeft = 0;
+  for(const r of roots){ xc[r] = curLeft + widthOf(r)/2; curLeft += widthOf(r) + GAP_X; }
+  for(const k of order){
+    if(xc[k]!=null) continue;
+    const ps = [...(pu[k]||[])];
+    let cx;
+    if(ps.length){ cx = 0; for(const p of ps) cx += xc[p]; cx /= ps.length; }
+    else { cx = curLeft + widthOf(k)/2; curLeft += widthOf(k) + GAP_X; }
+    const occ = (occByLevel[level[k]] = occByLevel[level[k]] || []);
+    for(const it of occ){ if(cx - widthOf(k)/2 < it.right + GAP_X) cx = it.right + GAP_X + widthOf(k)/2; }
+    occ.push({right: cx + widthOf(k)/2});
+    xc[k] = cx;
+  }
+  const out = [], spouseEdges = [], childEdges = [], unitKeyById = {};
+  for(const k of order){
+    const u = groups[k], w = unitWidth(u), cx = xc[k], x0 = cx - w/2;
     for(let i=0;i<u.length;i++){
       const id = u[i];
-      out.push({id:id, depth:depth,
-                cx:x0 + i*(NODE_W+SPOUSE_GAP) + NODE_W/2,
-                cy:36 + depth*LEVEL_H,
-                dup:false});
+      out.push({id:id, depth:level[k], cx:x0 + i*(NODE_W+SPOUSE_GAP) + NODE_W/2, cy:36 + level[k]*LEVEL_H, dup:false});
       unitKeyById[id] = k;
-      if(i > 0) spouseEdges.push({y:36 + depth*LEVEL_H, x1:x0 + (i-1)*(NODE_W+SPOUSE_GAP) + NODE_W, x2:x0 + i*(NODE_W+SPOUSE_GAP) - NODE_W/2});
+      if(i > 0) spouseEdges.push({y:36 + level[k]*LEVEL_H, x1:x0 + (i-1)*(NODE_W+SPOUSE_GAP) + NODE_W, x2:x0 + i*(NODE_W+SPOUSE_GAP) - NODE_W/2});
     }
-    let x = left;
-    for(const c of unitChildren(u)){
-      const cu = unitOf(c);
-      childEdges.push({pkey:k, ckey:unitKey(cu)});
-      placeUnit(cu, depth+1, x);
-      x += measureUnit(cu);
-    }
+    for(const c of (cu[k]||[])) childEdges.push({pkey:k, ckey:c});
   }
-  /* 根单元：成员都无父母的单元 */
-  const hasParent = {};
-  for(const id in childrenOf){ for(const k of childrenOf[id]) hasParent[k] = 1; }
-  const rootList = [];
-  const doneRoots = {};
-  for(const k in groups){
-    if(groups[k].some(id => hasParent[id])) continue;
-    if(doneRoots[k]) continue;
-    rootList.push(groups[k]);
-    doneRoots[k] = 1;
-  }
-  if(!rootList.length && groups[Object.keys(groups)[0]]) rootList.push(groups[Object.keys(groups)[0]]);
-  let left = 0;
-  for(const r of rootList){ const w = measureUnit(r); placeUnit(r, 0, left); left += w + 44; }
-  let maxD = 0;
-  for(const n of out) if(n.depth > maxD) maxD = n.depth;
-  return {nodes:out, spouseEdges:spouseEdges, childEdges:childEdges,
-          unitKeyById:unitKeyById, width:Math.max(left - 44, 300), height:80 + maxD*LEVEL_H};
+  let maxD = 0; for(const n of out) if(n.depth > maxD) maxD = n.depth;
+  let maxRight = 0; for(const k in xc) maxRight = Math.max(maxRight, xc[k] + unitWidth(groups[k])/2);
+  return {nodes:out, spouseEdges:spouseEdges, childEdges:childEdges, unitKeyById:unitKeyById,
+          width: Math.max(maxRight + 24, 300), height: 90 + maxD*LEVEL_H};
 }
 function shortInfo(e){
   const f = (e.fields||[]).find(x => x.value);
   return f ? String(f.value).slice(0,14) : (e.year || '');
 }
+/* 收集某人的家族子图：上下若干代 + 配偶组 */
+function collectFam(tree, id, maxUp, maxDown){
+  const inc = new Set([id]);
+  for(let round=0; round<4; round++){
+    let f=[...inc], d=0; const seenUp=new Set([...inc]);
+    while(f.length && d<maxUp){ const n=[]; for(const cur of f) for(const p of (tree.parentOf[cur]||[])){ if(!seenUp.has(p)){seenUp.add(p); inc.add(p); n.push(p);} } f=n; d++; }
+    f=[...inc]; d=0; const seenDn=new Set([...inc]);
+    while(f.length && d<maxDown){ const n=[]; for(const cur of f) for(const c of (tree.childrenOf[cur]||[])){ if(!seenDn.has(c)){seenDn.add(c); inc.add(c); n.push(c);} } f=n; d++; }
+    for(const k in tree.groups){ const g=tree.groups[k]; if(g.some(m=>inc.has(m))) for(const m of g) inc.add(m); }
+  }
+  return inc;
+}
+function filterFam(tree, inc){
+  const people = tree.people.filter(e => inc.has(e.id));
+  const parentOf={}, childrenOf={}, groups={};
+  for(const id in tree.parentOf){ if(inc.has(id)) parentOf[id]=(tree.parentOf[id]||[]).filter(x=>inc.has(x)); }
+  for(const id in tree.childrenOf){ if(inc.has(id)) childrenOf[id]=(tree.childrenOf[id]||[]).filter(x=>inc.has(x)); }
+  for(const k in tree.groups){ const g=(tree.groups[k]||[]).filter(x=>inc.has(x)); if(g.length) groups[g[0]]=g; }
+  return {people, parentOf, childrenOf, groups};
+}
 function renderFamily(){
   stopFamily();
   const tree = buildFamilyTree();
-  const roots = tree.people.filter(e => (tree.childrenOf[e.id]||[]).length && !(tree.parentOf[e.id]||[]).length).map(e=>e.id);
-  const rootList = roots.length ? roots : tree.people.filter(e => (tree.childrenOf[e.id]||[]).length).map(e=>e.id);
+  let ftree = tree, focusEntry = null;
+  if(ui.famFocus && tree.people.length){
+    const inc = collectFam(tree, ui.famFocus, 3, 3);
+    ftree = filterFam(tree, inc);
+    focusEntry = tree.people.find(e=>e.id === ui.famFocus) || null;
+  }
+  const isFocused = !!focusEntry;
+  const famOpts = tree.people.map(e=>'<option value="'+esc(e.name)+'">').join('');
+  const roots = ftree.people.filter(e => (ftree.childrenOf[e.id]||[]).length && !(ftree.parentOf[e.id]||[]).length).map(e=>e.id);
+  const rootList = roots.length ? roots : ftree.people.filter(e => (ftree.childrenOf[e.id]||[]).length).map(e=>e.id);
 
   app.innerHTML = '<main class="tl-page">' +
     '<div class="page-hd"><h2>家族</h2><span class="sub">由人物词条的「父母」字段自动生成</span></div>' +
     '<div class="toolbar">' +
+      '<span class="fam-search"><input type="text" id="famQ" list="famList" autocomplete="off" placeholder="搜一个人，看他的家族…" value="'+(focusEntry?esc(focusEntry.name):'')+'"><datalist id="famList">'+famOpts+'</datalist>' +
+        (focusEntry ? '<button class="btn sm ghost" id="famClear" title="回到全览">✕ 全览</button>' : '') +
+      '</span>' +
       '<div class="seg">' +
         '<button class="btn" id="famFit">全览</button>' +
         '<button class="btn icon" id="famMinus" title="缩小">−</button>' +
@@ -2609,17 +2662,31 @@ function renderFamily(){
       '</div>' +
       '<span class="hint">滚轮缩放 · 拖拽平移 · 点击节点打开词条</span>' +
       '<span class="spacer"></span>' +
-      '<span class="hint">'+rootList.length+' 个家族 · '+Object.keys(tree.parentOf).length+' 条亲子关系</span>' +
+      '<span class="hint">'+(focusEntry ? ('正在看「'+esc(focusEntry.name)+'」的家族'+(rootList.length?' · '+rootList.length+' 个家族单元':'')) : (rootList.length+' 个家族 · '+Object.keys(ftree.parentOf).length+' 条亲子关系'))+'</span>' +
     '</div>' +
     '<div id="famBox"><svg id="famSvg"></svg></div></main>';
 
   const box = app.querySelector('#famBox');
-  if(!rootList.length){
+  if(!rootList.length && !isFocused){
     box.innerHTML = '<div class="empty"><h3>还没有家族关系</h3>' +
       '<p>给人物词条填上「父母」字段，值写已有人物的名字（多个用逗号分隔），家族树会自动画出来。<br>人物的默认模板里已经有这个字段。</p></div>';
     return;
   }
-  const layout = layoutForest(tree.groups, tree.childrenOf);
+  const layout = layoutForest(ftree.groups, ftree.parentOf, ftree.childrenOf);
+  const famQ = app.querySelector('#famQ');
+  if(famQ){
+    const doFocus = ()=>{
+      const q = (famQ.value||'').trim();
+      if(!q){ ui.famFocus = null; render(); return; }
+      const e = tree.people.find(x=>x.name===q) || tree.people.find(x=>(namesOf(x)||[]).includes(q));
+      if(e){ ui.famFocus = e.id; famQ.value = e.name; render(); }
+      else { ui.famFocus = null; render(); }
+    };
+    famQ.addEventListener('change', doFocus);
+    famQ.addEventListener('keydown', ev=>{ if(ev.key==='Enter') doFocus(); });
+    const famClear = app.querySelector('#famClear');
+    if(famClear) famClear.onclick = ()=>{ ui.famFocus = null; render(); };
+  }
   const svg = app.querySelector('#famSvg');
   const W = box.clientWidth || 900;
   const H = Math.max(420, Math.min(720, layout.height));
@@ -2632,16 +2699,16 @@ function renderFamily(){
   for(const s of layout.spouseEdges){
     html += '<line class="fam-spouse" x1="'+s.x1.toFixed(1)+'" y1="'+s.y.toFixed(1)+'" x2="'+s.x2.toFixed(1)+'" y2="'+s.y.toFixed(1)+'"/>';
   }
-  const nodesByKey = {};
-  for(const n of layout.nodes){ (nodesByKey[layout.unitKeyById[n.id]] = nodesByKey[layout.unitKeyById[n.id]] || []).push(n); }
-  /* 亲子连线：按单元去重后的边画 */
-  for(const e of layout.childEdges){
-    const pNodes = nodesByKey[e.pkey], cNodes = nodesByKey[e.ckey];
-    if(!pNodes || !cNodes || !cNodes.length) continue;
-    const px = pNodes.length > 1 ? (pNodes[0].cx + pNodes[pNodes.length-1].cx)/2 : pNodes[0].cx;
-    const cx = cNodes.length > 1 ? (cNodes[0].cx + cNodes[cNodes.length-1].cx)/2 : cNodes[0].cx;
-    const y1 = pNodes[0].cy + 22, y2 = cNodes[0].cy - 22, my = (y1 + y2) / 2;
-    html += '<path class="fam-link" d="M'+px.toFixed(1)+' '+y1+' V'+my.toFixed(1)+' H'+cx.toFixed(1)+' V'+y2+'"/>';
+  /* 亲子连线：每一位家长分别连到自己的孩子（按「父母」成员级），两家通过夫妻自然相连 */
+  const nodeById = {};
+  for(const n of layout.nodes) nodeById[n.id] = n;
+  for(const cid in ftree.parentOf){
+    for(const pid of (ftree.parentOf[cid]||[])){
+      const pn = nodeById[pid], cn = nodeById[cid];
+      if(!pn || !cn) continue;
+      const y1 = pn.cy + 22, y2 = cn.cy - 22, my = (y1 + y2) / 2;
+      html += '<path class="fam-link" d="M'+pn.cx.toFixed(1)+' '+y1.toFixed(1)+' V'+my.toFixed(1)+' H'+cn.cx.toFixed(1)+' V'+y2.toFixed(1)+'"/>';
+    }
   }
   for(const n of layout.nodes){
     const e = entryById(n.id);
@@ -2890,10 +2957,14 @@ function renderMaps(){
 }
 
 function renderGraph(){
-  app.innerHTML = '<main style="max-width:1100px;"><div id="graphBox"><canvas id="graph"></canvas></div>' +
-    '<p class="ghint">圆点 = 词条（大小代表被关联次数），连线 = 相互提及。点圆点打开词条，可拖拽。颜色：' +
-    Object.values(TYPES).map(t=>'<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:'+t.color+';margin:0 3px 0 10px;"></span>'+t.label).join('') +
-    '</p></main>';
+  const typeKeys = Object.keys(TYPES);
+  app.innerHTML = '<main class="graph-page">' +
+    '<aside class="graph-side"><div class="gs-title">词条</div><div class="gs-search"><input type="text" id="gsQ" list="gsData" autocomplete="off" placeholder="搜节点…"><datalist id="gsData"></datalist></div><div id="gsList"></div></aside>' +
+    '<section class="graph-main"><div id="graphBox"><canvas id="graph"></canvas></div>' +
+      '<p class="ghint">圆点 = 词条（大小代表被关联次数），连线 = 相互提及。颜色：' +
+      Object.values(TYPES).map(t=>'<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:'+t.color+';margin:0 3px 0 10px;"></span>'+t.label).join('') +
+      '<br>点圆点或左侧词条 = 选中（金色高亮 + 关联线/关联词条高亮），再点一次打开词条；可拖拽。</p>' +
+    '</section></main>';
   const canvas = document.getElementById('graph');
   const W = 1000, H = 620;
   canvas.width = W; canvas.height = H;
@@ -2928,7 +2999,13 @@ function renderGraph(){
 
   const ctx = canvas.getContext('2d');
   let alpha = 1, frames = 0, settled = false;
-  let dragNode = null, dragMoved = 0, lastMouse = null;
+  let dragNode = null, dragMoved = 0, lastMouse = null, lastClient = null;
+  let sel = null;                 // 当前选中的词条 id（金色光晕）
+  let nbs = null;                 // 选中节点的关联词条集合（选中时算一次，避免每帧重算）
+  let viewOX = 0, viewOY = 0;     // 平移（预留）
+  const edgeSet = new Set(edges.map(([a,b])=>[a.e.id,b.e.id].sort().join('|')));
+  const connectedTo = id => { const s = new Set(); for(const k of edgeSet){ const p = k.split('|'); if(p[0]===id||p[1]===id) s.add(p[0]===id?p[1]:p[0]); } return s; };
+  function select(id){ sel = id; nbs = sel ? connectedTo(sel) : null; alpha = 0; settled = true; renderGsList(); draw(); }
   /* 拖拽后重新激活模拟（收敛后 rAF 已停，这里负责重启） */
   function wake(){
     alpha = Math.max(alpha, 0.28);
@@ -2970,21 +3047,46 @@ function renderGraph(){
 
   function draw(){
     ctx.clearRect(0,0,W,H);
-    ctx.lineWidth = 1;
+    ctx.save();
+    ctx.translate(viewOX, viewOY);
+    /* 边 */
     for(const [a,b] of edges){
-      ctx.strokeStyle = 'rgba(83,74,183,0.18)';
+      const hit = sel && (a.e.id===sel || b.e.id===sel);
+      ctx.strokeStyle = hit ? 'rgba(245,158,11,0.95)' : 'rgba(83,74,183,0.16)';
+      ctx.lineWidth = hit ? 2.6 : 1;
       ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
     }
+    /* 节点 */
     for(const n of nodes){
       const tp = TYPES[n.e.type]||TYPES.lore;
       const r = 11 + Math.min(n.deg,8)*1.8;
+      const isSel = sel && n.e.id===sel;
+      const isNb = sel && !isSel && nbs && nbs.has(n.e.id);
+      /* 先画节点本体（保持原色） */
       ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI*2);
       ctx.fillStyle = tp.fill; ctx.fill();
       ctx.strokeStyle = tp.color; ctx.lineWidth = 1.6; ctx.stroke();
+      /* 选中：套几层金色光晕粗圈（不改本体颜色/字色） */
+      if(isSel){
+        for(let g=3; g>=1; g--){
+          ctx.beginPath(); ctx.arc(n.x, n.y, r + 3 + g*3, 0, Math.PI*2);
+          ctx.strokeStyle = 'rgba(245,158,11,'+(0.45-(g-1)*0.11)+')'; ctx.lineWidth = 4.5; ctx.stroke();
+        }
+        ctx.beginPath(); ctx.arc(n.x, n.y, r+2, 0, Math.PI*2);
+        ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 3.2; ctx.stroke();
+      } else if(isNb){
+        ctx.beginPath(); ctx.arc(n.x, n.y, r+3, 0, Math.PI*2);
+        ctx.strokeStyle = 'rgba(239,68,68,0.9)'; ctx.lineWidth = 3; ctx.stroke();
+        ctx.beginPath(); ctx.arc(n.x, n.y, r+6, 0, Math.PI*2);
+        ctx.strokeStyle = 'rgba(239,68,68,0.35)'; ctx.lineWidth = 3; ctx.stroke();
+      }
+      /* 名字保持深色可读 */
       ctx.fillStyle = '#2c2c2a';
       ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(n.e.name.length>10?n.e.name.slice(0,10)+'…':n.e.name, n.x, n.y + r + 14);
     }
+    ctx.restore();
+    if(sel){ const n = byId[sel]; if(n){ ctx.fillStyle = 'rgba(180,83,9,.9)'; ctx.font='12px sans-serif'; ctx.textAlign='left'; ctx.fillText('已选中：'+n.e.name, 12, H-14); } }
   }
 
   function loop(){
@@ -3015,14 +3117,15 @@ function renderGraph(){
     return null;
   }
   canvas.addEventListener('mousedown', ev=>{
-    const p = toLocal(ev); dragNode = nodeAt(p.x,p.y); dragMoved = 0; lastMouse = p;
+    const p = toLocal(ev); dragNode = nodeAt(p.x,p.y); dragMoved = 0; lastMouse = p; lastClient = {x:ev.clientX, y:ev.clientY};
     if(dragNode) wake();
     if(dragNode) canvas.style.cursor='grabbing';
   });
   canvas.addEventListener('mousemove', ev=>{
     const p = toLocal(ev);
     if(dragNode){
-      dragMoved += Math.abs(p.x-lastMouse.x)+Math.abs(p.y-lastMouse.y);
+      dragMoved += Math.abs(ev.clientX-lastClient.x)+Math.abs(ev.clientY-lastClient.y);
+      lastClient = {x:ev.clientX, y:ev.clientY};
       dragNode.x = p.x; dragNode.y = p.y; dragNode.vx = 0; dragNode.vy = 0;
       lastMouse = p;
     } else {
@@ -3030,16 +3133,57 @@ function renderGraph(){
     }
   });
   canvas.addEventListener('mouseup', ev=>{
-    if(dragNode && dragMoved < 5){
-      ui.tab='entries'; ui.openId = dragNode.e.id; ui.editing = undefined;
-      stopGraph(); render(); return;
+    if(dragNode && dragMoved < 7){
+      if(sel === dragNode.e.id){ ui.tab='entries'; ui.openId = dragNode.e.id; ui.editing = undefined; stopGraph(); render(); return; }
+      select(dragNode.e.id);
     }
     dragNode = null; canvas.style.cursor='grab';
   });
   function toLocal(ev){
     const r = canvas.getBoundingClientRect();
-    return {x:(ev.clientX-r.left)*W/r.width, y:(ev.clientY-r.top)*H/r.height};
+    const mx = (ev.clientX-r.left)*W/r.width, my = (ev.clientY-r.top)*H/r.height;
+    return {x: mx - viewOX, y: my - viewOY};
   }
+  function renderGsList(){
+    const box = document.getElementById('gsList');
+    if(!box) return;
+    const q = (ui.gsQuery||'').trim();
+    const dl = document.getElementById('gsData');
+    if(dl) dl.innerHTML = state.entries.map(e=>'<option value="'+esc(e.name)+'">').join('');
+    let h = '';
+    for(const tk of typeKeys){
+      let list = state.entries.filter(x=>x.type===tk);
+      if(q) list = list.filter(x=>namesOf(x).some(nm=>nm.toLowerCase().indexOf(q.toLowerCase()) >= 0));
+      if(!list.length) continue;
+      const col = !!ui.gsCollapsed[tk];
+      h += '<div class="gs-type'+(col?' collapsed':'')+'">' +
+        '<span class="gch" data-type="'+tk+'">'+(col?'▸':'▾')+'</span>' +
+        TYPES[tk].label + '<span>'+list.length+'</span></div>';
+      if(!col){
+        for(const x of list) h += '<div class="gs-item'+(x.id===sel?' on':'')+'" data-id="'+esc(x.id)+'">'+esc(x.name)+'</div>';
+      }
+    }
+    box.innerHTML = h || '<div class="gs-type">'+(q?'（无匹配词条）':'暂无词条')+'</div>';
+    box.querySelectorAll('.gch').forEach(ch=>ch.onclick = ()=>{
+      const tk = ch.dataset.type;
+      ui.gsCollapsed[tk] = !ui.gsCollapsed[tk];
+      renderGsList();
+    });
+    box.querySelectorAll('.gs-item').forEach(el=>el.onclick = ()=>{ select(el.dataset.id); });
+  }
+  function initGsSearch(){
+    const gsQ = document.getElementById('gsQ');
+    if(!gsQ) return;
+    gsQ.addEventListener('input', debounce(()=>{ ui.gsQuery = gsQ.value; renderGsList(); }, 220));
+    gsQ.addEventListener('change', ()=>{
+      const v = gsQ.value.trim();
+      const e = state.entries.find(x=>x.name===v) || state.entries.find(x=>(namesOf(x)||[]).includes(v));
+      if(e){ gsQ.value = e.name; select(e.id); }
+    });
+    gsQ.addEventListener('keydown', ev=>{ if(ev.key==='Enter'){ const v=gsQ.value.trim(); const e=state.entries.find(x=>x.name===v); if(e) select(e.id); } });
+  }
+  renderGsList();
+  initGsSearch();
 }
 
 /* ============ 全局事件 ============ */

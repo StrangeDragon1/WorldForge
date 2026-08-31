@@ -64,49 +64,6 @@ def resource_path(rel):
 BASE = app_dir()
 
 
-def normalize_data_dir(path):
-    """拖进来的可能就是 data 本身，也可能是它的父目录，这里统一成数据根目录"""
-    p = os.path.abspath(path)
-    if os.path.isfile(os.path.join(p, MARKER)):
-        return p, '本身就是数据根（含 %s）' % MARKER
-    sub = os.path.join(p, 'data')
-    if os.path.isdir(sub):
-        return sub, '使用其下的 data 子文件夹'
-    if any(os.path.isdir(os.path.join(p, d)) for d in DIR_TO_TYPE):
-        return p, '含类型子文件夹，视为数据根'
-    return p, '未识别结构，原样使用（会按需创建类型文件夹）'
-
-
-def resolve_data_dir():
-    """按优先级确定数据目录，返回 (路径, 来源说明)"""
-    for a in sys.argv[1:]:
-        a = str(a).strip().strip('"')
-        if a and os.path.isdir(a):
-            path, why = normalize_data_dir(a)
-            return path, '拖拽/命令行参数（%s）' % why
-    env = os.environ.get('CANGJINGGE_HOME')
-    if env and env.strip():
-        env = env.strip().strip('"')
-        if os.path.isdir(env):
-            path, why = normalize_data_dir(env)
-            return path, '环境变量 CANGJINGGE_HOME（%s）' % why
-    cfg = os.path.join(BASE, '数据目录.txt')
-    if os.path.isfile(cfg):
-        try:
-            with open(cfg, encoding='utf-8', errors='replace') as f:
-                for line in f:
-                    v = line.strip().strip('"')
-                    if not v or v.startswith('#'):
-                        continue
-                    if os.path.isdir(v):
-                        path, why = normalize_data_dir(v)
-                        return path, '数据目录.txt（%s）' % why
-                    break
-        except OSError:
-            pass
-    return os.path.join(BASE, 'data'), '默认（exe 旁边的 data 文件夹）'
-
-
 def find_html():
     """优先用外部 html（方便随时改），找不到才用打包内嵌的那份"""
     p = os.path.join(BASE, '藏经阁.html')
