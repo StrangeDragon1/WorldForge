@@ -1,0 +1,12 @@
+# 临时 / 备份 / 回收站内容（由藏经阁应用自动生成）
+.versions/
+.trash/
+.history.log
+
+# 系统文件
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# 地图图片预览/导出缓存
+# 地图源图请保留在仓库中（地图/ 目录）

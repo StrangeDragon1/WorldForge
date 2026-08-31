@@ -1,0 +1,17 @@
+# ===== 藏经阁项目 .gitignore =====
+
+# 本地工作记忆 / 开发辅助，不上传
+.workbuddy/
+
+# 备份文件
+*.bak
+藏经阁.exe.bak
+
+# 系统垃圾文件
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# 常用本地/编辑器临时文件
+*.log
+node_modules/

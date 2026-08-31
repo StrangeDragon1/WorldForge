@@ -1,0 +1,2985 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>藏经阁 · 世界观图书馆</title>
+<style>
+  :root{
+    /* 表面色：冷白系列，背景从暖白改纯白 */
+    --bg:#ffffff; --bg2:#f8fafc; --bg3:#f1f5f9;
+    /* 文本：石板灰，更现代的层次 */
+    --tx:#0f172a; --tx2:#475569; --tx3:#94a3b8;
+    /* 边框：精细灰色 */
+    --bd:#e2e8f0; --bd2:#cbd5e1;
+    /* 主色：现代靛蓝 */
+    --accent:#4f46e5; --accent-bg:#eef2ff; --accent-2:#a8543f;
+    --accent-text:#4338ca;
+    /* 字体：现代系统字 + 中文字族，标题用衬线 */
+    --font-sans:-apple-system,BlinkMacSystemFont,"Inter","PingFang SC","Microsoft YaHei","Source Han Sans SC",sans-serif;
+    --serif:"Source Han Serif SC","Noto Serif CJK SC","Songti SC","STSong","SimSun",serif;
+    --mono:"JetBrains Mono","Cascadia Mono","Consolas","Courier New",monospace;
+    /* 阴影三级 */
+    --shadow-1:0 1px 2px rgba(15,23,42,.04);
+    --shadow-2:0 1px 2px rgba(15,23,42,.04), 0 4px 12px rgba(15,23,42,.06);
+    --shadow-3:0 4px 6px rgba(15,23,42,.04), 0 12px 24px rgba(15,23,42,.08);
+    --radius-s:6px; --radius:10px; --radius-l:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:var(--font-sans); background:var(--bg2); color:var(--tx); font-size:14px; line-height:1.6; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;}
+  header{background:var(--bg); border-bottom:1px solid var(--bd); padding:0 28px; display:flex; align-items:center; gap:24px; height:60px; position:sticky; top:0; z-index:10; box-shadow:var(--shadow-2);}
+  header h1{font-family:var(--serif); font-size:20px; font-weight:600; letter-spacing:2px; color:var(--tx); display:flex; align-items:center; gap:9px;}
+  header h1::before{content:''; width:22px; height:22px; border-radius:6px; background:linear-gradient(135deg, var(--accent), #818cf8); box-shadow:0 2px 6px rgba(79,70,229,.28);}
+  header .sub{font-size:12px; color:var(--tx3); margin-left:-8px; letter-spacing:.3px;}
+  nav{display:flex; gap:2px; background:var(--bg2); padding:4px; border-radius:var(--radius-s); flex:0 0 auto; min-width:0; border:1px solid var(--bd);}
+  nav button{border:none; background:none; padding:6px 13px; font-size:13px; color:var(--tx2); cursor:pointer; border-radius:5px; font-family:inherit; transition:all .15s ease; white-space:nowrap; font-weight:500;}
+  nav button:hover{color:var(--tx); background:var(--bg);}
+  nav button.on{background:var(--bg); color:var(--accent); font-weight:600; box-shadow:var(--shadow-1);}
+  header .count{margin-left:auto; font-size:12.5px; color:var(--tx2); display:flex; align-items:center; gap:6px;}
+  header .count::before{content:''; width:6px; height:6px; border-radius:50%; background:#22c55e; box-shadow:0 0 0 3px rgba(34,197,94,.18);}
+  .pathbar{background:var(--bg); border-bottom:1px solid var(--bd); padding:8px 28px; display:flex; align-items:center; gap:10px; font-size:12.5px; color:var(--tx2); flex-wrap:wrap;}
+  .pathbar .lb{color:var(--tx3); flex-shrink:0; font-weight:500;}
+  .pathbar .pth{font-family:var(--mono); font-size:11.5px; background:var(--bg2); padding:2px 9px; border-radius:var(--radius-s); color:var(--tx); max-width:520px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .pathbar .sep{color:var(--bd2); user-select:none; opacity:.6;}
+  .pathbar .mode{margin-left:auto; color:var(--tx2); flex-shrink:0; font-weight:500; display:flex; align-items:center; gap:5px;}
+  .pathbar .mode b{color:var(--accent); font-weight:600;}
+  .pathbar .mode::before{content:''; width:5px; height:5px; border-radius:50%; background:var(--accent); opacity:.5;}
+  .wrap{display:flex; min-height:calc(100vh - 92px);}
+  aside{width:304px; background:var(--bg); border-right:1px solid var(--bd); padding:24px 18px; flex-shrink:0; display:flex; flex-direction:column; gap:12px; position:sticky; top:60px; align-self:flex-start; max-height:calc(100vh - 60px); overflow-y:auto;}
+  aside input[type=text], aside select{width:100%; padding:8px 11px; border:1px solid var(--bd); border-radius:var(--radius-s); font-size:13px; font-family:inherit; background:var(--bg); color:var(--tx); transition:all .15s ease;}
+  aside input[type=text]:hover, aside select:hover{border-color:var(--bd2);}
+  aside input:focus, aside select:focus{outline:none; border-color:var(--accent); background:var(--bg); box-shadow:0 0 0 3px rgba(63,93,128,.09);}
+  aside select{cursor:pointer;}
+  /* 按钮规范：三档尺寸 × 四层级 */
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:6px; border:1px solid var(--bd2); background:var(--bg); padding:0 14px; height:32px; border-radius:8px; cursor:pointer; font-size:13px; font-family:inherit; color:var(--tx); white-space:nowrap; transition:all .15s ease;}
+  .btn:hover{border-color:var(--tx3); background:var(--bg2);}
+  .btn:active{transform:translateY(1px);}
+  .btn.sm{height:26px; padding:0 10px; font-size:12px; border-radius:7px;}
+  .btn.lg{height:38px; padding:0 20px; font-size:14px; border-radius:9px;}
+  .btn.icon{width:30px; padding:0; font-size:15px;}
+  .btn.icon.sm{width:26px; height:26px; font-size:13px;}
+  .btn.block{width:100%;}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 1px 2px rgba(43,42,40,.10);}
+  .btn.primary:hover{background:#37527a; border-color:#37527a;}
+  .btn.danger{color:#a8402f; border-color:#f0c4bc;}
+  .btn.danger:hover{background:#fdf3f1; border-color:#e09a8d;}
+  .btn.ghost{border-color:transparent; background:transparent; color:var(--tx2);}
+  .btn.ghost:hover{background:var(--bg2); color:var(--tx); border-color:transparent;}
+  .btn.subtle{background:var(--bg2); border-color:var(--bd); color:var(--tx2);}
+  .btn.subtle:hover{background:var(--bg3); color:var(--tx); border-color:var(--bd2);}
+  .btn:disabled,.btn:disabled:hover{opacity:.4; cursor:default; background:var(--bg); border-color:var(--bd2); color:var(--tx); transform:none;}
+  .btn.primary:disabled,.btn.primary:disabled:hover{background:var(--accent); border-color:var(--accent); color:#fff;}
+  /* 操作行：主操作靠左，次要与危险推到右侧 */
+  .ops-row{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:12px;}
+  .ops-row .spacer{flex:1;}
+  .ops-row .sep{width:1px; height:20px; background:var(--bd); margin:0 2px;}
+  /* 分段控件：把同类按钮聚拢 */
+  .seg{display:inline-flex; background:var(--bg2); border:1px solid var(--bd); border-radius:8px; padding:2px; gap:2px;}
+  .seg .btn{border-color:transparent; background:transparent; height:26px; padding:0 12px; font-size:12.5px; color:var(--tx2);}
+  .seg .btn:hover{background:var(--bg); color:var(--tx);}
+  .seg .btn:active{transform:none;}
+  /* 工具栏：一整条操作区 */
+  .toolbar{display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:10px 14px; background:var(--bg); border:1px solid var(--bd); border-radius:var(--radius); box-shadow:var(--shadow-1);}
+  .toolbar .spacer{flex:1;}
+  .toolbar .hint{font-size:11.5px; color:var(--tx3);}
+  /* 数据页分区卡片 */
+  .sec{background:var(--bg); border:1px solid var(--bd); border-radius:var(--radius-l); padding:22px 26px; max-width:760px; margin-bottom:14px; box-shadow:var(--shadow-2);}
+  .sec h3{font-size:14px; font-weight:600; margin-bottom:7px; letter-spacing:.3px;}
+  .sec > p{font-size:13px; color:var(--tx2); line-height:1.75; margin-bottom:0;}
+  .sec .ops-row{margin-top:14px; margin-bottom:0;}
+  .sec.danger-zone{border-color:#f0d5cf;}
+  .sec.danger-zone h3{color:#a8402f;}
+  .view-seg{width:100%; margin-bottom:2px;}
+  .view-seg .btn{flex:1;}
+  .seg .btn.on{background:var(--bg); color:var(--accent); box-shadow:0 1px 2px rgba(43,42,40,.08); font-weight:500;}
+  aside.tbl .list{display:none;}
+  .filter-box{margin-top:2px;}
+  .filt-row{display:grid; grid-template-columns:1fr 1fr 26px; gap:6px; margin-bottom:6px;}
+  .filt-row select{padding:6px 8px; border:1px solid var(--bd); border-radius:7px; font-size:12px; font-family:inherit; background:var(--bg2); color:var(--tx); cursor:pointer; min-width:0;}
+  .filt-row select:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(63,93,128,.09);}
+  .filter-box .fadd{margin:2px 0 6px; font-size:12px;}
+  .tbl-card{max-width:none; padding:20px 22px; overflow-x:auto;}
+  .etable{width:100%; border-collapse:collapse; font-size:13px;}
+  .etable th{text-align:left; font-weight:500; color:var(--tx2); font-size:11.5px; letter-spacing:.5px; padding:9px 12px; border-bottom:1px solid var(--bd2); white-space:nowrap;}
+  .etable td{padding:9px 12px; border-bottom:1px solid var(--bd); vertical-align:top; max-width:280px;}
+  .etable tbody tr{cursor:pointer; transition:background .12s ease;}
+  .etable tbody tr:hover td{background:var(--bg2);}
+  .etable .nm{font-weight:500; white-space:nowrap;}
+  .etable .nm .dot{display:inline-block; margin-right:7px; vertical-align:middle;}
+  .etable .na{color:var(--bd2);}
+  .etable .yr{font-family:var(--mono); font-size:11.5px; color:var(--tx3); white-space:nowrap;}
+  .ver-row{display:flex; align-items:center; gap:10px; padding:9px 12px; border:1px solid var(--bd); border-radius:10px; background:var(--bg2); margin-bottom:7px; cursor:pointer; transition:all .15s ease;}
+  .ver-row:hover{border-color:var(--bd2); background:var(--bg);}
+  .ver-row.sel{border-color:var(--accent); box-shadow:0 0 0 3px rgba(63,93,128,.10);}
+  .ver-time{font-family:var(--mono); font-size:11.5px; flex-shrink:0; color:var(--tx);}
+  .ver-prev{flex:1; min-width:0; font-size:11.5px; color:var(--tx3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .ver-size{font-size:11px; color:var(--tx3); font-family:var(--mono); flex-shrink:0;}
+  .ver-body{margin-top:12px; background:var(--bg2); border:1px solid var(--bd); border-radius:10px; padding:12px 14px; max-height:300px; overflow:auto;}
+  .ver-body pre{font-family:var(--mono); font-size:12px; line-height:1.7; white-space:pre-wrap; word-break:break-word; color:var(--tx2);}
+  .back-row{margin-bottom:12px;}
+  .group h4{font-size:11px; color:var(--tx3); font-weight:500; margin:16px 0 5px 8px; letter-spacing:1.2px; display:flex; align-items:center; gap:4px;}
+  .gadd{margin-left:auto; border:none; background:none; color:var(--tx3); cursor:pointer; font-size:14px; line-height:1; padding:0 6px; border-radius:5px; font-family:inherit; opacity:0; transition:all .15s ease;}
+  .group h4:hover .gadd{opacity:1;}
+  .gadd:hover{background:var(--accent-bg); color:var(--accent);}
+  .item{display:flex; align-items:center; gap:9px; padding:7px 10px; border-radius:var(--radius-s); cursor:pointer; transition:all .12s ease; color:var(--tx2);}
+  .item:hover{background:var(--bg2); color:var(--tx);}
+  .item.on{background:var(--accent-bg); color:var(--accent-text); font-weight:600; box-shadow:inset 2px 0 0 var(--accent);}
+  .dot{width:8px; height:8px; border-radius:50%; flex-shrink:0; opacity:.85;}
+  .item .nm{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .item .yr{font-size:11px; color:var(--tx3); flex-shrink:0; font-family:var(--mono);}
+  main{flex:1; padding:36px 40px; min-width:0;}
+  .card{background:var(--bg); border:1px solid var(--bd); border-radius:var(--radius-l); padding:32px 36px; max-width:880px; box-shadow:var(--shadow-2);}
+  .badge{display:inline-block; font-size:11.5px; padding:2px 11px; border-radius:20px; font-weight:500; letter-spacing:.5px; margin-top:7px;}
+  .entry-head{display:flex; align-items:flex-start; gap:14px; margin-bottom:8px; padding-bottom:16px; border-bottom:1px solid var(--bd);}
+  .entry-head h2{font-family:var(--serif); font-size:27px; font-weight:600; line-height:1.35; letter-spacing:1px;}
+  .entry-head .ops{margin-left:auto; display:flex; gap:8px; flex-shrink:0; margin-top:4px;}
+  .aliases{color:var(--tx3); font-size:13px; margin-bottom:16px;}
+  table.fields{width:100%; border-collapse:collapse; margin:22px 0; font-size:13.5px; background:var(--bg2); border-radius:var(--radius); overflow:hidden; border:1px solid var(--bd);}
+  table.fields td{border-top:1px solid var(--bd); padding:11px 16px; vertical-align:top; transition:background .12s ease;}
+  table.fields tr:first-child td{border-top:none;}
+  table.fields tr:hover td{background:var(--bg);}
+  table.fields td:first-child{width:120px; color:var(--tx3); white-space:nowrap; font-weight:500; background:transparent !important;}
+  .content p{margin-bottom:13px; text-align:justify;}
+  .content{font-size:14.5px; line-height:1.85;}
+  .lk{color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(63,93,128,.38); cursor:pointer; transition:all .12s ease;}
+  .lk:hover{background:var(--accent-bg); border-bottom-color:var(--accent);}
+  .backlinks{margin-top:30px; padding-top:18px; border-top:1px solid var(--bd);}
+  .backlinks h3{font-size:12px; color:var(--tx3); font-weight:500; margin-bottom:10px; letter-spacing:1px;}
+  .backlinks .bl-item{padding:5px 0; font-size:13px;}
+  .empty{max-width:540px; margin:80px auto; text-align:center; color:var(--tx2); padding:48px 32px; background:var(--bg); border-radius:var(--radius-l); border:1px dashed var(--bd2); box-shadow:var(--shadow-1);}
+  .empty h3{font-family:var(--serif); font-size:18px; margin-bottom:10px; color:var(--tx); letter-spacing:1px; font-weight:600;}
+  .editor .row{display:flex; gap:14px; margin-bottom:16px; flex-wrap:wrap;}
+  .editor label{display:block; font-size:12px; color:var(--tx2); margin-bottom:5px; letter-spacing:.3px;}
+  .editor input[type=text], .editor select, .editor textarea{width:100%; padding:9px 12px; border:1px solid var(--bd); border-radius:9px; font-size:14px; font-family:inherit; background:var(--bg2); line-height:1.75; color:var(--tx); transition:all .15s ease;}
+  .editor input:focus, .editor textarea:focus, .editor select:focus{outline:none; border-color:var(--accent); background:var(--bg); box-shadow:0 0 0 3px rgba(63,93,128,.09);}
+  .editor textarea{min-height:300px; resize:vertical; font-size:14.5px; line-height:1.9;}
+  .frow{display:grid; grid-template-columns:140px 1fr 34px; gap:8px; margin-bottom:9px; align-items:center;}
+  .frow input{padding:8px 11px !important; font-size:13px !important;}
+  .frow .btn{padding:6px 9px; color:var(--tx3);}
+  .fadd{font-size:13px; color:var(--accent); cursor:pointer; display:inline-block; margin:6px 0 18px; transition:opacity .15s ease;}
+  .fadd:hover{opacity:.75;}
+  .fadd-row{display:flex; align-items:center; gap:18px; flex-wrap:wrap;}
+  .fadd-row .fadd{margin:6px 0 14px;}
+  .fadd-hint{font-size:12px; color:var(--tx3); margin-left:auto;}
+  .fhint{grid-column:1 / -1; font-size:11px; color:#a3540b; line-height:1.5; margin-top:-2px;}
+  .frow select.fv{width:100%; padding:8px 11px; border:1px solid var(--bd); border-radius:7px; font-size:13px; font-family:inherit; background:var(--bg); color:var(--tx); cursor:pointer;}
+  .frow select.fv:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(63,93,128,.09);}
+  .tl-page{width:100%; max-width:none; padding:30px 38px;}
+  .page-hd{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:12px;}
+  .page-hd h2{font-family:var(--serif); font-size:20px; font-weight:600; letter-spacing:1.5px;}
+  .page-hd .sub{font-size:12px; color:var(--tx3);}
+  .tl{max-width:1100px; position:relative; padding-left:26px;}
+  .tl::before{content:''; position:absolute; left:5px; top:10px; bottom:10px; width:1px; background:var(--bd2);}
+  .tl-item{position:relative; margin-bottom:28px;}
+  .tl-item::before{content:''; position:absolute; left:-25px; top:8px; width:11px; height:11px; border-radius:50%; background:var(--bg); border:2px solid var(--accent); box-shadow:0 0 0 3px var(--bg3);}
+  .tl-year{font-family:var(--mono); font-size:12.5px; font-weight:500; color:var(--accent); margin-bottom:3px; letter-spacing:.3px;}
+  .tl-body h3{font-family:var(--serif); font-size:17px; font-weight:600; margin-bottom:7px; cursor:pointer; letter-spacing:.8px; transition:color .12s ease;}
+  .tl-body h3:hover{color:var(--accent);}
+  .tl-body .content{color:var(--tx2); font-size:13px; max-height:120px; overflow:hidden;}
+  .tl-body .content p{margin-bottom:6px;}
+  .tl-type{font-size:11px; padding:1px 9px; border-radius:12px; vertical-align:2px; margin-left:8px; font-family:inherit;}
+  .map-wrap{position:relative; display:inline-block; background:var(--bg2); border:1px solid var(--bd); border-radius:12px; overflow:hidden; box-shadow:var(--shadow); line-height:0; max-width:100%;}
+  .map-img{display:block; max-width:100%; height:auto; user-select:none;}
+  .map-wrap.editing{cursor:crosshair;}
+  .map-pins{position:absolute; inset:0; line-height:1;}
+  .map-pin{position:absolute; transform:translate(-50%,-50%);}
+  .pin-dot{display:block; width:12px; height:12px; border-radius:50%; background:var(--accent); border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.28);}
+  .pin-lb{position:absolute; left:50%; top:13px; transform:translateX(-50%); font-size:11px; color:var(--tx); background:rgba(255,255,255,.94); border:1px solid var(--bd); border-radius:5px; padding:1px 7px; white-space:nowrap; cursor:pointer;}
+  .pin-lb:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .map-tip{font-size:12px; color:var(--tx3); margin-top:10px;}
+  .pick-q{width:100%; padding:8px 11px; border:1px solid var(--bd); border-radius:8px; font-size:13px; font-family:inherit; background:var(--bg2); color:var(--tx);}
+  .pick-q:focus{outline:none; border-color:var(--accent); background:var(--bg);}
+  .pick-list{margin-top:10px; max-height:340px; overflow-y:auto;}
+  .pick-row{display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; cursor:pointer; font-size:13px;}
+  .pick-row:hover{background:var(--bg2);}
+  .pick-row .pt{margin-left:auto; font-size:11px; color:var(--tx3);}
+  #famBox{background:var(--bg); border:1px solid var(--bd); border-radius:12px; overflow:hidden; box-shadow:var(--shadow);}
+  #famSvg{display:block; width:100%; cursor:grab;}
+  #famSvg:active{cursor:grabbing;}
+  .fam-link{fill:none; stroke:var(--bd2); stroke-width:1.4;}
+  .fam-spouse{stroke:var(--accent); stroke-width:2.2; fill:none;}
+  .fam-node{cursor:pointer;}
+  .fam-node rect{stroke-width:1.2;}
+  .fam-node:hover rect{stroke-width:2.4;}
+  .fam-node.dup{opacity:.58;}
+  .fam-nm{font-size:14.5px; font-weight:600; fill:var(--tx); text-anchor:middle;}
+  .fam-sub{font-size:11.5px; fill:var(--tx3); text-anchor:middle;}
+  #graphBox{background:var(--bg); border:1px solid var(--bd); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow);}
+  #graph{display:block; width:100%; cursor:grab;}
+  .ghint{font-size:12px; color:var(--tx3); margin-top:10px;}
+  #tlBox{position:relative; background:var(--bg); border:1px solid var(--bd); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow);}
+  #tlCanvas{display:block; width:100%; cursor:grab;}
+  .tl-tip{position:absolute; display:none; background:var(--bg); border:1px solid var(--bd2); border-radius:9px; padding:9px 12px; font-size:12px; box-shadow:0 6px 20px rgba(43,42,40,.13); max-width:320px; z-index:5; line-height:1.6;}
+  .tl-toolbar{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:14px 0 4px;}
+  .tl-toolbar .hint{font-size:12px; color:var(--tx3);}
+  .tl-era-h{font-size:11.5px; color:var(--tx3); font-weight:500; margin:20px 0 8px; letter-spacing:2px;}
+  /* 纪元表管理弹窗 */
+  .mask{position:fixed; inset:0; background:rgba(43,42,40,.32); z-index:50; display:flex; align-items:flex-start; justify-content:center; padding:64px 20px; overflow:auto;}
+  .modal{background:var(--bg); border-radius:16px; box-shadow:0 24px 64px rgba(43,42,40,.24); width:100%; max-width:660px; overflow:hidden;}
+  .modal-hd{display:flex; align-items:center; gap:12px; padding:20px 24px 16px; border-bottom:1px solid var(--bd);}
+  .modal-hd h3{font-family:var(--serif); font-size:17px; font-weight:600; letter-spacing:1.5px;}
+  .modal-hd .msub{font-size:12px; color:var(--tx3);}
+  .modal-x{margin-left:auto; border:none; background:none; cursor:pointer; font-size:20px; color:var(--tx3); line-height:1; padding:2px 7px; border-radius:7px; font-family:inherit;}
+  .modal-x:hover{background:var(--bg2); color:var(--tx);}
+  .modal-bd{padding:18px 24px;}
+  .modal-ft{display:flex; align-items:center; gap:10px; padding:14px 24px 18px; border-top:1px solid var(--bd); background:var(--bg2);}
+  .modal-ft #eraWarn{font-size:12px; line-height:1.5; max-width:340px;}
+  .modal-ft .spacer{flex:1;}
+  .era-list{display:flex; flex-direction:column; gap:8px;}
+  .era-row{display:flex; align-items:center; gap:10px; background:var(--bg2); border:1px solid var(--bd); border-radius:10px; padding:7px 10px; transition:all .15s ease;}
+  .era-row:hover{border-color:var(--bd2); background:var(--bg);}
+  .era-row.builtin{background:var(--bg3);}
+  .era-idx{width:24px; height:24px; border-radius:50%; background:var(--accent-bg); color:var(--accent); font-size:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-family:var(--mono);}
+  .era-row.builtin .era-idx{background:var(--bg); color:var(--tx3); border:1px solid var(--bd2);}
+  .era-name{flex:1; min-width:0; border:1px solid transparent; background:transparent; padding:5px 8px; border-radius:7px; font-size:14px; font-family:inherit; color:var(--tx);}
+  .era-name:hover{border-color:var(--bd); background:var(--bg);}
+  .era-name:focus{outline:none; border-color:var(--accent); background:var(--bg); box-shadow:0 0 0 3px rgba(63,93,128,.09);}
+  .era-name:disabled{color:var(--tx2); cursor:default; background:transparent; border-color:transparent;}
+  .era-stat{font-size:11.5px; color:var(--tx3); flex-shrink:0; max-width:200px; text-align:right; font-family:var(--mono); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .era-ops{display:flex; gap:2px; flex-shrink:0;}
+  .era-ops button{border:none; background:none; cursor:pointer; color:var(--tx3); font-size:13px; width:26px; height:26px; border-radius:6px; line-height:1; font-family:inherit;}
+  .era-ops button:hover{background:var(--bg3); color:var(--tx);}
+  .era-ops button.del:hover{background:#fdf4f2; color:#a8402f;}
+  .era-ops button:disabled{opacity:.28; cursor:default;}
+  .era-ops button:disabled:hover{background:none; color:var(--tx3);}
+  .era-add{display:flex; gap:8px; margin-top:12px;}
+  .era-add input{flex:1; padding:8px 11px; border:1px solid var(--bd); border-radius:9px; font-size:13px; font-family:inherit; background:var(--bg2); color:var(--tx);}
+  .era-add input:focus{outline:none; border-color:var(--accent); background:var(--bg); box-shadow:0 0 0 3px rgba(63,93,128,.09);}
+  .era-extra{margin-top:14px; padding-top:12px; border-top:1px dashed var(--bd2); font-size:12px; color:var(--tx3); line-height:1.9;}
+  .era-extra:empty{display:none;}
+  .era-chip{display:inline-flex; align-items:center; gap:4px; background:var(--accent-bg); color:var(--accent); border:1px solid rgba(63,93,128,.2); border-radius:20px; padding:3px 5px 3px 12px; font-size:12px; margin:4px 6px 0 0;}
+  .era-chip button{border:none; background:none; cursor:pointer; color:var(--accent); font-size:15px; line-height:1; width:20px; height:20px; border-radius:50%; font-family:inherit;}
+  .era-chip button:hover{background:rgba(63,93,128,.16);}
+  .era-empty{color:var(--tx3); font-size:12.5px; text-align:center; padding:18px 0;}
+  /* 回收站与操作日志 */
+  .trash-row{display:flex; align-items:center; gap:10px; background:var(--bg2); border:1px solid var(--bd); border-radius:10px; padding:8px 12px; margin-bottom:7px; transition:all .15s ease;}
+  .trash-row:hover{border-color:var(--bd2); background:var(--bg);}
+  .trash-row .badge{flex-shrink:0; margin-top:0;}
+  .tr-name{flex:1; min-width:0; font-size:13.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .tr-time{font-size:11.5px; color:var(--tx3); flex-shrink:0; font-family:var(--mono);}
+  .tr-ops{display:flex; gap:6px; flex-shrink:0;}
+  .tr-ops .btn{padding:4px 11px; font-size:12px;}
+  .trash-empty{color:var(--tx3); font-size:12.5px; padding:10px 2px;}
+  .logbox{background:var(--bg2); border:1px solid var(--bd); border-radius:10px; padding:12px 14px; max-height:280px; overflow-y:auto; font-family:var(--mono); font-size:11.5px; line-height:1.9; color:var(--tx2);}
+  .log-line{white-space:pre-wrap; word-break:break-word;}
+  .log-line:first-child{color:var(--tx);}
+  .log-empty{color:var(--tx3); font-family:inherit; font-size:12.5px;}
+  .sec code{font-family:var(--mono); font-size:11.5px; background:var(--bg3); padding:1px 5px; border-radius:4px; color:var(--tx);}
+  .sec .logbox{margin-top:12px;}
+  .sec #trashList{margin-top:12px;}
+  /* 模板选择面板与模板管理 */
+  .modal-lg{max-width:800px;}
+  .era-row.sel{border-color:var(--accent); box-shadow:0 0 0 3px rgba(63,93,128,.10);}
+  .era-ops button.on{color:var(--accent);}
+  .tpl-pick{display:flex; align-items:center; gap:10px; padding:10px 13px; border:1px solid var(--bd); border-radius:10px; background:var(--bg2); cursor:pointer; margin-bottom:7px; transition:all .15s ease;}
+  .tpl-pick:hover{border-color:var(--accent); background:var(--bg);}
+  .tp-name{font-size:14px; font-weight:500; flex-shrink:0;}
+  .tp-badge{font-size:11px; color:var(--accent); background:var(--accent-bg); border-radius:20px; padding:1px 8px; flex-shrink:0;}
+  .tp-sum{font-size:11.5px; color:var(--tx3); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .tp-n{font-size:11.5px; color:var(--tx3); flex-shrink:0; font-family:var(--mono);}
+  .tpl-sec{margin-top:16px; padding-top:14px; border-top:1px solid var(--bd);}
+  .tpl-sec h5{font-size:12px; color:var(--tx2); font-weight:500; margin-bottom:9px; letter-spacing:.5px;}
+  .tpl-sec:first-child{margin-top:0; padding-top:0; border-top:none;}
+  .tpl-frow{display:grid; grid-template-columns:150px 104px 1fr 76px; gap:8px; align-items:center; margin-bottom:8px;}
+  .tpl-frow input, .tpl-frow select{width:100%; padding:6px 9px; border:1px solid var(--bd); border-radius:7px; font-size:13px; font-family:inherit; background:var(--bg); color:var(--tx);}
+  .tpl-frow input:focus, .tpl-frow select:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(63,93,128,.09);}
+  .tpl-frow .fo-na{font-size:12px; color:var(--bd2); text-align:center;}
+  .tpl-frow .ops{display:flex; gap:2px;}
+  .tpl-frow .ops button{border:none; background:none; cursor:pointer; color:var(--tx3); width:22px; height:24px; border-radius:6px; font-size:12px; line-height:1; font-family:inherit; padding:0;}
+  .tpl-frow .ops button:hover{background:var(--bg3); color:var(--tx);}
+  .tpl-frow .ops button.del:hover{background:#fdf4f2; color:#a8402f;}
+  .tpl-frow .ops button:disabled{opacity:.28; cursor:default;}
+  .tpl-frow .ops button:disabled:hover{background:none; color:var(--tx3);}
+  .tpl-add{display:flex; gap:8px; margin-top:10px;}
+  .tpl-add input{flex:1; padding:7px 10px; border:1px solid var(--bd); border-radius:8px; font-size:13px; font-family:inherit; background:var(--bg2); color:var(--tx);}
+  .tpl-add select{padding:7px 9px; border:1px solid var(--bd); border-radius:8px; font-size:13px; font-family:inherit; background:var(--bg2); color:var(--tx); cursor:pointer;}
+  .tpl-add input:focus, .tpl-add select:focus{outline:none; border-color:var(--accent); background:var(--bg);}
+  .data-card{max-width:660px;}
+  .data-card h3{font-size:15px; font-weight:600; margin:24px 0 8px; padding-bottom:7px; border-bottom:1px solid var(--bd);}
+  .data-card h3:first-child{margin-top:0;}
+  .data-card p{font-size:13px; color:var(--tx2); margin-bottom:10px; line-height:1.7;}
+  .ops-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;}
+  .gate-card{max-width:580px; margin:90px auto; text-align:center;}
+  .gate-card h2{font-family:var(--serif); font-size:21px; font-weight:600; margin-bottom:12px; letter-spacing:1.5px;}
+  .gate-card p{font-size:13.5px; color:var(--tx2); margin-bottom:20px; line-height:1.8;}
+  .gate-card .hint{font-size:12px; color:var(--tx3); margin-top:20px; line-height:1.9;}
+  .gate-card .big{padding:10px 30px; font-size:14px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>藏经阁</h1>
+  <nav>
+    <button data-tab="entries">词条</button>
+    <button data-tab="timeline">编年史</button>
+    <button data-tab="graph">关系图</button>
+    <button data-tab="family">家族</button>
+    <button data-tab="maps">地图</button>
+    <button data-tab="data">数据</button>
+  </nav>
+  <span class="count" id="count"></span>
+</header>
+<div class="pathbar" id="pathbar"></div>
+<div class="wrap" id="app"></div>
+
+<script>
+'use strict';
+
+/* ============ 基础配置 ============ */
+const TYPES = {
+  role:   {label:'人物', color:'#534AB7', fill:'#EEEDFE'},
+  faction:{label:'势力', color:'#185FA5', fill:'#E6F1FB'},
+  item:   {label:'物品', color:'#854F0B', fill:'#FAEEDA'},
+  place:  {label:'地点', color:'#0F6E56', fill:'#E1F5EE'},
+  event:  {label:'事件', color:'#993C1D', fill:'#FAECE7'},
+  lore:   {label:'设定', color:'#5F5E5A', fill:'#F1EFE8'},
+};
+const DIRS = ['人物','势力','物品','地点','事件','设定'];
+const TYPE_BY_DIR = {'人物':'role','势力':'faction','物品':'item','地点':'place','事件':'event','设定':'lore'};
+const FIELD_DEFAULTS = {
+  role:   ['境界','身份','门派','生卒年'],
+  faction:['宗主','所在地','核心理念'],
+  item:   ['品阶','类型','持有者','来历'],
+  place:  ['所属区域','特征'],
+  event:  ['参与人物','起因','结果'],
+  lore:   ['类别'],
+};
+const MARKER = '.cangjingge.json';
+const TEMPLATES_FILE = '.templates.json';
+
+/* ============ 词条模板 ============ */
+/* 字段种类键叫 kind，绝不能叫「类型」——值为六大分类名时会被解析器静默丢弃 */
+const KINDS = {text:'文本', number:'数字', select:'下拉', entry:'词条引用'};
+const BUILTIN_FIELDS = {
+  role:   [['境界','text'],['年龄','number'],['性别','select',['男','女','不详']],['身份','text'],
+           ['门派','entry'],['生卒年','text'],['父母','entry'],['亲密关系','entry']],
+  faction:[['宗主','entry'],['所在地','entry'],['核心理念','text']],
+  item:   [['品阶','text'],['类别','text'],['持有者','entry'],['来历','text']],
+  place:  [['所属区域','entry'],['特征','text']],
+  event:  [['参与人物','entry'],['起因','text'],['结果','text'],['地点','entry']],
+  lore:   [['类别','text']],
+};
+function builtinTemplates(){
+  return Object.entries(BUILTIN_FIELDS).map(([t,fs])=>({
+    id:'builtin_'+t, name:TYPES[t].label+'默认', type:t, default:true,
+    fields: fs.map(([label,kind,options])=>({label:label, kind:kind, options:options||null}))
+  }));
+}
+/* 把任意来源（磁盘/用户输入）的模板规整成合法结构，非法或缺失一律回退出厂 */
+function normalizeTemplates(raw){
+  const okKind = k => (k==='number'||k==='select'||k==='entry') ? k : 'text';
+  const cleanLabel = s => String(s||'').replace(/[:：\r\n]/g,'').trim();
+  const src = Array.isArray(raw) ? raw : null;
+  if(!src || !src.length) return builtinTemplates();
+  const out = [], seen = {};
+  for(const it of src){
+    if(!it || typeof it !== 'object') continue;
+    let type = (it.type===null || it.type===undefined || it.type==='') ? null : it.type;
+    if(type !== null && !TYPES[type]) type = null;
+    const fields = [];
+    for(const f of (Array.isArray(it.fields) ? it.fields : [])){
+      if(!f || typeof f !== 'object') continue;
+      const label = cleanLabel(f.label);
+      if(!label) continue;
+      const kind = okKind(f.kind);
+      const fld = {label:label, kind:kind, options:null};
+      if(kind === 'select'){
+        const opts = Array.isArray(f.options) ? f.options.map(x=>String(x||'').trim()).filter(Boolean) : [];
+        fld.options = opts.length ? opts : null;
+      }
+      fields.push(fld);
+    }
+    let id = String(it.id || '').trim();
+    if(!id || seen[id]) id = 'tpl_' + Date.now().toString(36) + '_' + out.length;
+    seen[id] = 1;
+    out.push({id:id, name:String(it.name||'未命名模板').trim() || '未命名模板',
+              type:type, default:!!it.default, fields:fields});
+  }
+  if(!out.length) return builtinTemplates();
+  /* 同类型只保留第一个 default；都没有则把该类型第一个设为默认 */
+  const byType = {};
+  for(const t of out){
+    const k = t.type === null ? '*' : t.type;
+    (byType[k] = byType[k] || []).push(t);
+  }
+  for(const k in byType){
+    const group = byType[k];
+    const first = group.findIndex(t=>t.default);
+    group.forEach((t,i)=>{ t.default = (i === (first >= 0 ? first : 0)); });
+  }
+  return out;
+}
+function templatesOfType(type){
+  const all = state.templates || builtinTemplates();
+  return all.filter(t=>t.type === type);
+}
+function defaultTemplateOf(type){
+  const group = templatesOfType(type);
+  if(!group.length){
+    const b = builtinTemplates().find(t=>t.type === type);
+    return b || {id:'', name:'空白', type:type, default:true, fields:[]};
+  }
+  return group.find(t=>t.default) || group[0];
+}
+function kindOf(label, type){
+  const t = defaultTemplateOf(type);
+  const f = t && (t.fields||[]).find(x=>x.label === label);
+  return f || {label:label, kind:'text', options:null};
+}
+
+/* ============ 状态 ============ */
+const state = { root:null, rootName:'data', connected:false, entries:[], eraListed:[], info:null, templates:null };
+const SERVER_MODE = (location.protocol === 'http:');
+const TAB_IDS = {entries:1, timeline:1, graph:1, family:1, maps:1, data:1};
+const ui = {tab:'entries', openId:null, editing:undefined, search:'', typeFilter:'all',
+            view:'list', filters:[], mapId:null};
+
+/* ============ 文件系统层 ============ */
+async function getDir(name, create){
+  try{ return await state.root.getDirectoryHandle(name, {create:!!create}); }
+  catch(e){ return null; }
+}
+async function readTextFile(dh, fname){
+  try{
+    const fh = await dh.getFileHandle(fname);
+    const f = await fh.getFile();
+    return await f.text();
+  }catch(e){ return null; }
+}
+async function connect(){
+  if(!window.showDirectoryPicker){
+    alert('这个浏览器不支持「文件夹授权」功能。请用 Edge 或 Chrome 打开藏经阁.html（已实测可用）。');
+    return;
+  }
+  let root;
+  try{
+    root = await window.showDirectoryPicker({id:'cangjingge', mode:'readwrite'});
+  }catch(e){
+    if(e && e.name === 'AbortError') return; /* 用户取消 */
+    alert('连接失败：' + (e.message || e));
+    return;
+  }
+  try{
+    const marker = await readTextFile(root, MARKER);
+    if(marker === null){
+      let empty = true;
+      try{ for await (const entry of root.values()){ empty = false; break; } }catch(e){}
+      const msg = empty
+        ? '要把这个文件夹初始化为藏经阁数据目录吗？\n（将创建 人物 / 势力 / 物品 / 地点 / 事件 / 设定 子文件夹）'
+        : '这个文件夹里已有其他内容。\n仍要在这里创建藏经阁的子文件夹结构吗？';
+      if(!confirm(msg)) return;
+      for(const d of DIRS){ await root.getDirectoryHandle(d, {create:true}); }
+      const fh = await root.getFileHandle(MARKER, {create:true});
+      const w = await fh.createWritable();
+      await w.write(JSON.stringify({app:'藏经阁', version:2, note:'每个 .md 文件是一个词条，所在文件夹决定类型。'}, null, 2));
+      await w.close();
+    }else{
+      for(const d of DIRS){ await root.getDirectoryHandle(d, {create:true}); }
+    }
+    state.root = root;
+    state.rootName = root.name;
+    state.connected = true;
+    ui.editing = undefined;
+    await refresh();
+  }catch(e){
+    alert('初始化文件夹时出错：' + (e.message || e));
+  }
+}
+
+async function loadAll(){
+  if(SERVER_MODE){
+    try{
+      const r = await fetch('/api/entries');
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      const d = await r.json();
+      state.rootName = d.root || 'data';
+      return d.entries || [];
+    }catch(err){
+      alert('本地服务无响应：' + (err.message || err));
+      return state.entries;
+    }
+  }
+  const entries = [];
+  if(!state.connected) return entries;
+  for(const dir of DIRS){
+    const dh = await getDir(dir, false);
+    if(!dh) continue;
+    const type = TYPE_BY_DIR[dir];
+    try{
+      for await (const [name, handle] of dh.entries()){
+        if(handle.kind !== 'file' || !name.toLowerCase().endsWith('.md')) continue;
+        let text = '';
+        try{ text = await (await handle.getFile()).text(); }catch(e){ continue; }
+        const base = name.slice(0, -3);
+        entries.push(parseMd(text, type, base));
+      }
+    }catch(e){ /* 单个目录读不了就跳过 */ }
+  }
+  return entries;
+}
+
+/* ---- .md 解析与序列化 ---- */
+function parseMd(text, type, base){
+  const e = { id: TYPES[type].label + '/' + base, name: base, type, aliases: [], year: '', fields: [], content: '' };
+  text = String(text || '').replace(/^\uFEFF/, '');
+  if(text.startsWith('---')){
+    const end = text.indexOf('\n---', 3);
+    if(end !== -1){
+      const head = text.slice(4, end);
+      for(const line of head.split('\n')){
+        const i = line.indexOf(':');
+        if(i < 1) continue;
+        const key = line.slice(0, i).trim();
+        const val = line.slice(i + 1).trim();
+        if(!key) continue;
+        if(key === '类型' && DIRS.indexOf(val) !== -1) continue; /* 兼容手写头，文件夹才是类型的真正来源 */
+        else if(key === '别名') e.aliases = val.split(/[,，、]+/).map(s=>s.trim()).filter(Boolean);
+        else if(key === '纪年') e.year = val;
+        else e.fields.push({label:key, value:val});
+      }
+      e.content = text.slice(end + 4).replace(/^\n+/, '').replace(/\s+$/, '');
+    }else{
+      e.content = text;
+    }
+  }else{
+    e.content = text;
+  }
+  return e;
+}
+function serializeMd(e){
+  let head = '';
+  if((e.aliases || []).length) head += '别名: ' + e.aliases.join('，') + '\n';
+  if(e.year) head += '纪年: ' + e.year + '\n';
+  for(const f of (e.fields || [])){
+    if(f.label && f.label.trim()) head += f.label.trim() + ': ' + (f.value || '') + '\n';
+  }
+  return '---\n' + head + '---\n\n' + (e.content || '') + '\n';
+}
+function safeName(n){
+  return String(n || '').trim().replace(/[\\/:*?"<>|]/g, '_').replace(/[. ]+$/, '') || '未命名';
+}
+async function post(url, obj){
+  await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(obj)});
+}
+async function writeEntry(e){
+  if(SERVER_MODE){
+    const r = await fetch('/api/save', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({entry:e})});
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    return;
+  }
+  await fsaSnapshot(e.type, e.name);   /* 覆盖前先留一份历史 */
+  const dir = (TYPES[e.type] || TYPES.lore).label;
+  const dh = await state.root.getDirectoryHandle(dir, {create:true});
+  const fh = await dh.getFileHandle(safeName(e.name) + '.md', {create:true});
+  const w = await fh.createWritable();
+  await w.write(serializeMd(e));
+  await w.close();
+}
+/* ---- 回收站与操作日志：file:// 模式的文件系统实现 ---- */
+const TRASH_DIR = '.trash';
+const HISTORY_FILE = '.history.log';
+
+async function fsaWrite(dh, fname, text){
+  const fh = await dh.getFileHandle(fname, {create:true});
+  const w = await fh.createWritable();
+  await w.write(text);
+  await w.close();
+}
+async function fsaRead(dh, fname){
+  try{ const fh = await dh.getFileHandle(fname); return await (await fh.getFile()).text(); }
+  catch(e){ return null; }
+}
+async function fsaRemove(dh, fname){
+  try{ await dh.removeEntry(fname); return true; }catch(e){ return false; }
+}
+async function fsaListFiles(dh){
+  const out = [];
+  if(!dh) return out;
+  try{ for await (const [name, h] of dh.entries()){ if(h.kind === 'file') out.push(name); } }catch(e){}
+  return out;
+}
+function stamp(d){
+  const p = x => String(x).padStart(2,'0');
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+}
+function uniqueAmong(existing, base){
+  let n = base + '.md', i = 2;
+  while(existing.indexOf(n) >= 0){ n = base+'('+i+').md'; i++; }
+  return n;
+}
+async function fsaLog(action, target, extra){
+  try{
+    const line = '['+stamp(new Date())+'] '+action+' '+target+(extra ? ' — '+extra : '')+'\n';
+    const old = (await fsaRead(state.root, HISTORY_FILE)) || '';
+    await fsaWrite(state.root, HISTORY_FILE, old + line);
+  }catch(e){}
+}
+async function fsaTrashIndex(){
+  const dh = await getDir(TRASH_DIR, true);
+  if(!dh) return [];
+  const txt = await fsaRead(dh, 'index.json');
+  if(!txt) return [];
+  try{ return JSON.parse(txt).items || []; }catch(e){ return []; }
+}
+async function fsaSaveTrashIndex(items){
+  const dh = await getDir(TRASH_DIR, true);
+  if(dh) await fsaWrite(dh, 'index.json', JSON.stringify({items:items}, null, 2));
+}
+async function fsaTrashDir(dir, create){
+  const tdh = await getDir(TRASH_DIR, true);
+  if(!tdh) return null;
+  try{ return await tdh.getDirectoryHandle(dir, {create:!!create}); }catch(e){ return null; }
+}
+async function fsaTrash(type, name){
+  const dir = (TYPES[type] || TYPES.lore).label;
+  const src = await getDir(dir, false);
+  const safe = safeName(name);
+  const text = src ? await fsaRead(src, safe + '.md') : null;
+  if(text === null) return false;
+  const sub = await fsaTrashDir(dir, true);
+  if(!sub) return false;
+  const fname = uniqueAmong(await fsaListFiles(sub), safe);
+  await fsaWrite(sub, fname, text);
+  await fsaRemove(src, safe + '.md');
+  const items = await fsaTrashIndex();
+  items.push({name:name, type:type, dir:dir, file:fname, deletedAt:stamp(new Date())});
+  await fsaSaveTrashIndex(items);
+  await fsaLog('删除', dir+'/'+name, '已移入回收站');
+  return true;
+}
+async function fsaRestore(item){
+  const sub = await fsaTrashDir(item.dir, false);
+  const text = sub ? await fsaRead(sub, item.file) : null;
+  if(text === null) return false;
+  const dst = await getDir(item.dir, true);
+  const safe = safeName(item.name);
+  const fname = uniqueAmong(await fsaListFiles(dst), safe);
+  await fsaWrite(dst, fname, text);
+  await fsaRemove(sub, item.file);
+  let items = await fsaTrashIndex();
+  items = items.filter(x=>!(x.dir === item.dir && x.file === item.file));
+  await fsaSaveTrashIndex(items);
+  await fsaLog('恢复', item.dir+'/'+item.name, fname !== safe+'.md' ? '原名已存在，恢复为 '+fname : '');
+  return true;
+}
+async function fsaPurge(item){
+  const sub = await fsaTrashDir(item.dir, false);
+  if(sub) await fsaRemove(sub, item.file);
+  let items = await fsaTrashIndex();
+  items = items.filter(x=>!(x.dir === item.dir && x.file === item.file));
+  await fsaSaveTrashIndex(items);
+  await fsaLog('彻底删除', item.dir+'/'+item.name);
+  return true;
+}
+async function fsaEmptyTrash(){
+  const items = await fsaTrashIndex();
+  let n = 0;
+  for(const it of items){
+    const sub = await fsaTrashDir(it.dir, false);
+    if(sub && await fsaRemove(sub, it.file)) n++;
+  }
+  await fsaSaveTrashIndex([]);
+  await fsaLog('清空回收站', n+' 个词条');
+  return n;
+}
+async function fsaHistory(){
+  const txt = await fsaRead(state.root, HISTORY_FILE);
+  if(!txt) return [];
+  return txt.split('\n').filter(l=>l.trim()).slice(-200).reverse();
+}
+
+/* ---- 回收站与操作日志：统一接口（双模式） ---- */
+async function trashList(){
+  if(SERVER_MODE){
+    try{ const r = await fetch('/api/trash'); return ((await r.json()).items) || []; }catch(e){ return []; }
+  }
+  return await fsaTrashIndex();
+}
+async function trashRestore(item){
+  if(SERVER_MODE){ await post('/api/restore', {item}); return; }
+  await fsaRestore(item);
+}
+async function trashPurge(item){
+  if(SERVER_MODE){ await post('/api/purge', {item}); return; }
+  await fsaPurge(item);
+}
+async function trashEmpty(){
+  if(SERVER_MODE){ await post('/api/empty-trash', {}); return; }
+  await fsaEmptyTrash();
+}
+async function historyLines(){
+  if(SERVER_MODE){
+    try{ const r = await fetch('/api/history'); return ((await r.json()).lines) || []; }catch(e){ return []; }
+  }
+  return await fsaHistory();
+}
+
+async function removeEntryFile(type, name, hard){
+  if(SERVER_MODE){
+    await post(hard ? '/api/delete' : '/api/trash', {type, name});
+    return;
+  }
+  const dir = (TYPES[type] || TYPES.lore).label;
+  if(hard){
+    const dh = await getDir(dir, false);
+    if(!dh) return;
+    await fsaRemove(dh, safeName(name) + '.md');
+    await fsaLog('改名清理旧文件', dir+'/'+name);
+    return;
+  }
+  await fsaTrash(type, name);
+}
+
+/* ---- 模板读写（双模式） ---- */
+async function templatesLoad(){
+  try{
+    if(SERVER_MODE){
+      const r = await fetch('/api/templates');
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      const d = await r.json();
+      return normalizeTemplates(d.hasFile ? d.templates : null);
+    }
+    const txt = await fsaRead(state.root, TEMPLATES_FILE);
+    if(txt === null) return normalizeTemplates(null);
+    return normalizeTemplates((JSON.parse(txt).templates) || null);
+  }catch(e){
+    return normalizeTemplates(null);
+  }
+}
+async function templatesSave(list){
+  const clean = normalizeTemplates(list);
+  if(SERVER_MODE){
+    await post('/api/templates', {templates: clean});
+  }else{
+    await fsaWrite(state.root, TEMPLATES_FILE,
+      JSON.stringify({version:1, templates:clean}, null, 2));
+  }
+  state.templates = clean;
+  return clean;
+}
+async function ensureTemplates(){
+  if(!state.templates) state.templates = await templatesLoad();
+  return state.templates;
+}
+
+/* ---- 版本快照：file:// 模式的文件系统实现 ---- */
+async function fsaVerDir(type, name, create){
+  const root = await getDir('.versions', true);
+  if(!root) return null;
+  const d1 = await root.getDirectoryHandle((TYPES[type]||TYPES.lore).label, {create:!!create}).catch(()=>null);
+  if(!d1) return null;
+  return await d1.getDirectoryHandle(safeName(name), {create:!!create}).catch(()=>null);
+}
+async function fsaSnapshot(type, name){
+  const src = await getDir((TYPES[type]||TYPES.lore).label, false);
+  const text = src ? await fsaRead(src, safeName(name)+'.md') : null;
+  if(text === null) return;
+  const d = await fsaVerDir(type, name, true);
+  if(!d) return;
+  const p = x=>String(x).padStart(2,'0');
+  const t = new Date();
+  const stamp = t.getFullYear()+p(t.getMonth()+1)+p(t.getDate())+'-'+p(t.getHours())+p(t.getMinutes())+p(t.getSeconds());
+  let fn = stamp + '.md', i = 2;
+  const existing = await fsaListFiles(d);
+  while(existing.indexOf(fn) >= 0){ fn = stamp+'('+i+').md'; i++; }
+  await fsaWrite(d, fn, text);
+  const all = (await fsaListFiles(d)).sort().reverse();
+  for(const old of all.slice(20)) await fsaRemove(d, old);
+}
+async function fsaVersionList(type, name){
+  const d = await fsaVerDir(type, name, false);
+  if(!d) return [];
+  const out = [];
+  for(const fn of (await fsaListFiles(d)).sort().reverse()){
+    if(!fn.toLowerCase().endsWith('.md')) continue;
+    try{
+      const f = await (await d.getFileHandle(fn)).getFile();
+      const txt = await f.text();
+      out.push({file:fn, time:new Date(f.lastModified).toLocaleString('zh-CN',{hour12:false}),
+                size:f.size, preview:txt.slice(0,160).replace(/\s+/g,' ')});
+    }catch(e){}
+  }
+  return out;
+}
+async function fsaVersionRead(type, name, fn){
+  const d = await fsaVerDir(type, name, false);
+  if(!d) return '';
+  const t = await fsaRead(d, fn);
+  return t === null ? '' : t;
+}
+async function fsaVersionRestore(type, name, fn){
+  const text = await fsaVersionRead(type, name, fn);
+  if(!text) return false;
+  await fsaSnapshot(type, name);
+  const dst = await getDir((TYPES[type]||TYPES.lore).label, true);
+  if(!dst) return false;
+  await fsaWrite(dst, safeName(name)+'.md', text);
+  await fsaLog('恢复版本', (TYPES[type]||TYPES.lore).label+'/'+name, fn);
+  return true;
+}
+
+/* ---- 版本快照：统一接口 ---- */
+function fmtSize(n){
+  n = Number(n) || 0;
+  if(n < 1024) return n + ' B';
+  if(n < 1048576) return (n / 1024).toFixed(1) + ' KB';
+  return (n / 1048576).toFixed(1) + ' MB';
+}
+async function versionList(type, name){
+  if(SERVER_MODE){
+    try{
+      const r = await fetch('/api/versions?type='+encodeURIComponent(type)+'&name='+encodeURIComponent(name));
+      return ((await r.json()).items) || [];
+    }catch(e){ return []; }
+  }
+  return await fsaVersionList(type, name);
+}
+async function versionRead(type, name, file){
+  if(SERVER_MODE){
+    try{
+      const r = await fetch('/api/version?type='+encodeURIComponent(type)+'&name='+
+        encodeURIComponent(name)+'&file='+encodeURIComponent(file));
+      return ((await r.json()).text) || '';
+    }catch(e){ return ''; }
+  }
+  return await fsaVersionRead(type, name, file);
+}
+async function versionRestore(type, name, file){
+  if(SERVER_MODE){ await post('/api/restore-version', {type, name, file}); return; }
+  await fsaVersionRestore(type, name, file);
+}
+
+async function openVersionHistory(type, name){
+  const items = await versionList(type, name);
+  const mask = document.createElement('div');
+  mask.className = 'mask';
+  mask.innerHTML =
+    '<div class="modal">' +
+      '<div class="modal-hd"><h3>历史版本</h3><span class="msub">'+esc(name)+' · 每次保存前自动留档，最多 20 份</span>' +
+      '<button class="modal-x" id="vX" title="关闭">×</button></div>' +
+      '<div class="modal-bd">' +
+        (items.length
+          ? '<div id="vList"></div><div class="ver-body" id="vBody"><pre>（点上面任意一版查看内容）</pre></div>'
+          : '<div class="era-empty">还没有历史版本。修改并保存这个词条后，旧内容会自动留档。</div>') +
+      '</div>' +
+      '<div class="modal-ft"><span id="vMsg"></span><span class="spacer"></span>' +
+        '<button class="btn ghost" id="vCancel">关闭</button>' +
+        '<button class="btn primary" id="vRestore" disabled>恢复选中版本</button></div>' +
+    '</div>';
+  document.body.appendChild(mask);
+  let sel = null;
+  const btn = mask.querySelector('#vRestore');
+  const body = mask.querySelector('#vBody');
+  if(items.length){
+    mask.querySelector('#vList').innerHTML = items.map((it,i)=>
+      '<div class="ver-row" data-i="'+i+'">' +
+        '<span class="ver-time">'+esc(it.time)+'</span>' +
+        '<span class="ver-prev">'+esc(it.preview||'')+'</span>' +
+        '<span class="ver-size">'+esc(fmtSize(it.size))+'</span></div>').join('');
+    mask.querySelectorAll('.ver-row').forEach(el=>{
+      el.onclick = async ()=>{
+        mask.querySelectorAll('.ver-row').forEach(x=>x.classList.remove('sel'));
+        el.classList.add('sel');
+        sel = items[+el.dataset.i];
+        btn.disabled = false;
+        body.innerHTML = '<pre>加载中…</pre>';
+        body.innerHTML = '<pre>'+esc(await versionRead(type, name, sel.file))+'</pre>';
+      };
+    });
+  }
+  btn.onclick = async ()=>{
+    if(!sel) return;
+    if(!confirm('把「'+name+'」恢复到 '+sel.time+' 这一版？\n当前内容会先存档，不会丢。')) return;
+    await versionRestore(type, name, sel.file);
+    close();
+    await refresh();
+  };
+  function close(){
+    mask.remove();
+    document.removeEventListener('keydown', onKey);
+  }
+  function onKey(ev){ if(ev.key === 'Escape') close(); }
+  document.addEventListener('keydown', onKey);
+  mask.querySelector('#vX').onclick = close;
+  mask.querySelector('#vCancel').onclick = close;
+  mask.onclick = ev=>{ if(ev.target === mask) close(); };
+}
+
+async function refresh(){
+  if(!SERVER_MODE && !state.connected){ render(); return; }
+  if(SERVER_MODE){
+    try{
+      const r = await fetch('/api/info');
+      if(r.ok) state.info = await r.json();
+    }catch(e){}
+  }
+  await ensureTemplates();
+  state.entries = await loadAll();
+  invalidateIndex();          /* 数据变了，关联索引作废重建 */
+  buildEraOrder(state.entries);
+  if(ui.openId !== null && !entryById(ui.openId)) ui.openId = null;
+  if(ui.openId === null && ui.view !== 'table' && state.entries.length) ui.openId = state.entries[0].id;
+  render();
+}
+
+/* ============ 工具函数 ============ */
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function entryById(id){ return state.entries.find(e=>e.id===id); }
+function aliasesOf(e){ return (e.aliases||[]).filter(Boolean); }
+function namesOf(e){ return [e.name, ...aliasesOf(e)].filter(Boolean); }
+
+/* ---- 关联索引：随数据刷新失效，避免每次渲染都 O(n²) 重算 ---- */
+let _nameIdx = null;    /* {map, re} 名字 → 词条 id，以及用于全文匹配的大正则 */
+let _mentionIdx = null; /* Map: 词条 id → 提到它的词条数组 */
+function invalidateIndex(){ _nameIdx = null; _mentionIdx = null; }
+function nameIndex(){
+  if(_nameIdx) return _nameIdx;
+  const map = new Map();
+  for(const e of state.entries){ if(e.name) map.set(e.name, e.id); }
+  for(const e of state.entries){
+    for(const a of aliasesOf(e)){ if(a && !map.has(a)) map.set(a, e.id); }
+  }
+  const keys = [...map.keys()].sort((a,b)=>b.length-a.length);
+  let re = null;
+  if(keys.length){
+    try{
+      re = new RegExp('(' + keys.map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|') + ')', 'g');
+    }catch(e){ re = null; }
+  }
+  _nameIdx = {map:map, re:re};
+  return _nameIdx;
+}
+/* 倒排索引：扫一遍全部词条，记录「谁提到了谁」 */
+function mentionIndex(){
+  if(_mentionIdx) return _mentionIdx;
+  const idx = new Map();
+  const {map, re} = nameIndex();
+  if(re){
+    for(const e of state.entries){
+      const hay = (e.content||'') + ' ' + (e.fields||[]).map(f=>f.value||'').join(' ');
+      re.lastIndex = 0;
+      const seen = new Set();
+      let m;
+      while((m = re.exec(hay)) !== null){
+        if(m[1] === ''){ re.lastIndex++; continue; }   /* 防空匹配死循环 */
+        const id = map.get(m[1]);
+        if(id && id !== e.id) seen.add(id);
+      }
+      for(const id of seen){
+        if(!idx.has(id)) idx.set(id, []);
+        idx.get(id).push(e);
+      }
+    }
+  }
+  _mentionIdx = idx;
+  return idx;
+}
+function nameMap(){ return nameIndex().map; }
+function linkify(text){
+  if(!text) return '';
+  const {map, re} = nameIndex();
+  if(!re) return esc(text);
+  re.lastIndex = 0;
+  let out='', last=0, m;
+  while((m=re.exec(text))!==null){
+    out += esc(text.slice(last, m.index));
+    out += '<a class="lk" data-id="'+map.get(m[1])+'">'+esc(m[1])+'</a>';
+    last = m.index + m[1].length;
+  }
+  out += esc(text.slice(last));
+  return out;
+}
+function renderContent(text){
+  return String(text||'').split(/\n{2,}/).map(p=>'<p>'+linkify(p).replace(/\n/g,'<br>')+'</p>').join('');
+}
+function mentionsOf(targetId){
+  return mentionIndex().get(targetId) || [];
+}
+/* ============ 纪年解析与排序 ============ */
+/* 把纪年文本解析为 {ok, era, year, month, day}；
+   公元前N年 → year = -N，这样公元前3000年 < 公元前100年 < 公元1年 自然成立。
+   自定义纪元（如「宏兴25565年」）解析出纪元名，先后顺序由「纪元表」词条决定。 */
+function parseChrono(raw){
+  let s = String(raw||'').trim();
+  if(!s) return null;
+  s = s.replace(/[０-９]/g, ch=>String.fromCharCode(ch.charCodeAt(0)-0xFEE0));
+  const MDD = '(?:\\s*(\\d{1,2})\\s*月(?:\\s*(\\d{1,2})\\s*[日号])?)?';
+  let m, era='公元', year=null, mo=null, dy=null;
+  const yr = v => v==='元' ? 1 : parseInt(v,10);
+  if((m=new RegExp('^公元\\s*前\\s*(\\d+|元)(?:\\s*年)?'+MDD+'$').exec(s))){
+    year = -yr(m[1]); mo=m[2]?parseInt(m[2],10):null; dy=m[3]?parseInt(m[3],10):null;
+  }else if((m=new RegExp('^公元(?:后)?\\s*(\\d+|元)(?:\\s*年)?'+MDD+'$').exec(s))){
+    year = yr(m[1]); mo=m[2]?parseInt(m[2],10):null; dy=m[3]?parseInt(m[3],10):null;
+  }else if((m=/^(公元\s*前)?\s*(\d+|元)\s*[-/.]\s*(\d{1,2})\s*[-/.]\s*(\d{1,2})\s*日?$/.exec(s))){
+    year = yr(m[2]); if(m[1]) year = -year; mo=parseInt(m[3],10); dy=parseInt(m[4],10);
+  }else if((m=new RegExp('^(-?\\d+|元)(?:\\s*年)?'+MDD+'$').exec(s))){
+    year = yr(m[1]); mo=m[2]?parseInt(m[2],10):null; dy=m[3]?parseInt(m[3],10):null;
+  }else if((m=new RegExp('^([^\\d]+?)\\s*(\\d+|元)\\s*年'+MDD+'$').exec(s))){
+    era = m[1].trim(); year = yr(m[2]); mo=m[3]?parseInt(m[3],10):null; dy=m[4]?parseInt(m[4],10):null;
+  }else{
+    return {ok:false};
+  }
+  if(!isFinite(year)) return {ok:false};
+  if(mo!==null && (mo<1||mo>12)) return {ok:false};
+  if(dy!==null && (dy<1||dy>31)) return {ok:false};
+  return {ok:true, era, year, month:mo, day:dy};
+}
+/* 年内位置：月日折算成年份小数，放大时间轴后同年内先后可分辨 */
+function tPos(c){
+  const mo = c.month||1, dy = c.day||1;
+  return c.year + ((mo-1) + (dy-1)/30)/12;
+}
+function describeChrono(c){
+  const y = c.era==='公元'
+    ? (c.year<0 ? '公元前'+(-c.year)+'年' : '公元'+c.year+'年')
+    : '纪元「'+c.era+'」'+c.year+'年';
+  return y + (c.month ? c.month+'月' : '') + (c.day ? c.day+'日' : '');
+}
+/* 纪元表：名为「纪元表」的词条，正文每行一个纪元名，从上到下＝时间先后 */
+function buildEraOrder(entries){
+  const t = entries.find(e=>e.name==='纪元表');
+  const listed = [];
+  if(t){
+    for(const line of String(t.content||'').split('\n')){
+      const name = line.trim().split(/[\s，,（(：:【\[]/)[0];
+      if(name && listed.indexOf(name)<0) listed.push(name);
+    }
+  }
+  state.eraListed = listed;
+}
+function allEras(){
+  const s = [];
+  for(const e of state.entries){
+    const c = parseChrono(e.year);
+    if(c && c.ok && s.indexOf(c.era)<0) s.push(c.era);
+  }
+  return s;
+}
+function eraRank(era){
+  const listed = state.eraListed;
+  const i = listed.indexOf(era);
+  if(i>=0) return i;
+  if(era==='公元') return -1; /* 未列入纪元表时，公元排最前 */
+  const rest = allEras().filter(x=>listed.indexOf(x)<0 && x!=='公元').sort((a,b)=>a.localeCompare(b,'zh'));
+  const j = rest.indexOf(era);
+  return listed.length + (j<0 ? rest.length : j);
+}
+function eraDisplayName(era){ return era==='公元' ? '公元（含公元前）' : era; }
+function cmpChrono(a,b){
+  const ka = [eraRank(a.c.era), a.c.year, a.c.month||0, a.c.day||0];
+  const kb = [eraRank(b.c.era), b.c.year, b.c.month||0, b.c.day||0];
+  for(let i=0;i<4;i++){ if(ka[i]!==kb[i]) return ka[i]-kb[i]; }
+  return a.e.name.localeCompare(b.e.name,'zh') || (a.e.id<b.e.id?-1:1);
+}
+
+/* ============ 视图渲染 ============ */
+const app = document.getElementById('app');
+
+function updatePathbar(){
+  const el = document.getElementById('pathbar');
+  if(!el) return;
+  const n = state.entries.length;
+  if(!SERVER_MODE && !state.connected){
+    el.innerHTML = '<span class="lb">数据目录</span><span class="pth">未连接</span>' +
+      '<span class="sep">·</span><span>请选择 data 文件夹</span>' +
+      '<span class="mode">文件直开模式 · 每会话需授权一次</span>';
+    return;
+  }
+  let p = '';
+  if(SERVER_MODE && state.info) p = state.info.root || '';
+  else if(state.rootName) p = state.rootName + '（浏览器不提供完整路径）';
+  el.innerHTML =
+    '<span class="lb">数据目录</span><span class="pth" title="'+esc(p || '')+'">'+esc(p || '—')+'</span>' +
+    '<span class="sep">·</span><span>'+n+' 个词条</span>' +
+    '<span class="mode">'+(SERVER_MODE
+      ? '<b>本地服务</b> · 免授权直读直写'
+      : '文件夹授权 · 每会话选一次')+'</span>';
+}
+
+function render(){
+  stopGraph();
+  stopTimeline();
+  stopFamily();
+  updatePathbar();
+  if(!SERVER_MODE && !state.connected){ renderGate(); return; }
+  document.getElementById('count').textContent = state.entries.length + ' 个词条 · ' + (SERVER_MODE ? '本地服务' : state.rootName);
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on', b.dataset.tab===ui.tab));
+  /* 地址栏同步当前页签，方便直接分享 / 刷新后停在同一页 */
+  try{ if(location.hash !== '#' + ui.tab) history.replaceState(null, '', '#' + ui.tab); }catch(e){}
+  if(ui.tab==='entries') renderEntries();
+  else if(ui.tab==='timeline') renderTimeline();
+  else if(ui.tab==='graph') renderGraph();
+  else if(ui.tab==='family') renderFamily();
+  else if(ui.tab==='maps') renderMaps();
+  else renderData();
+}
+
+function renderGate(){
+  document.getElementById('count').textContent = '';
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('on'));
+  app.innerHTML = '<main><div class="card gate-card">' +
+    '<h2>连接数据文件夹</h2>' +
+    '<p>藏经阁的数据现在是你磁盘上的真实文件：<b>data</b> 文件夹里每个 .md 是一个词条，所在文件夹决定类型。<br>' +
+    '由于浏览器安全机制，每次打开页面需要重新授权一次。</p>' +
+    '<button class="btn primary lg" id="btnConnect">连接 data 文件夹</button>' +
+    '<p class="hint">请选择世界观目录下的 data 文件夹（如 E:\\世界观\\data）<br>' +
+    '请使用 Edge 或 Chrome 打开本页面<br>' +
+    '小提示：双击同目录的「藏经阁.exe」可免授权启动，无需本步骤</p>' +
+    '</div></main>';
+  document.getElementById('btnConnect').onclick = ()=>connect();
+}
+
+/* 全部词条的正名与别名，供「词条引用」字段补全 */
+function allEntryNames(){
+  const s = new Set();     /* 用 Set 去重，原来是数组 indexOf，大数据量下是 O(n²) */
+  for(const en of state.entries){
+    for(const n of namesOf(en)){ if(n) s.add(n); }
+  }
+  return [...s];
+}
+function refOptions(){
+  return allEntryNames().slice(0, 500).map(n=>'<option value="'+esc(n)+'"></option>').join('');
+}
+
+function presetFrom(t, type){
+  const tp = type || (t && t.type) || 'lore';
+  return { name:'', type:tp, aliases:[], year:'',
+           fields:(t ? t.fields : []).map(f=>({label:f.label, value:'',
+                                               kind:f.kind||'text', options:f.options||null})),
+           content:'', _tpl:(t ? t.id : null) };
+}
+async function newWithTemplate(type, tpl){
+  await ensureTemplates();
+  const t = tpl || defaultTemplateOf(type);
+  ui.tab = 'entries';
+  ui.editing = {preset: presetFrom(t, type)};
+  render();
+}
+
+function renderEntries(){
+  app.innerHTML = '<aside></aside><main id="main"></main>';
+  const aside = app.querySelector('aside');
+  aside.innerHTML =
+    '<button class="btn primary block" id="btnNew">＋ 新建词条</button>' +
+    '<div class="seg view-seg">' +
+      '<button class="btn'+(ui.view==='list'?' on':'')+'" data-view="list">列表</button>' +
+      '<button class="btn'+(ui.view==='table'?' on':'')+'" data-view="table">表格</button></div>' +
+    '<input type="text" id="searchBox" placeholder="搜索名称 / 别名 / 正文…" value="'+esc(ui.search)+'">' +
+    '<select id="typeFilter"><option value="all">全部类型</option>' +
+    Object.entries(TYPES).map(([k,v])=>'<option value="'+k+'"'+(ui.typeFilter===k?' selected':'')+'>'+v.label+'</option>').join('') +
+    '</select>' +
+    '<div class="filter-box" id="filterBox"></div>' +
+    '<div class="list" id="entryList"></div>';
+  aside.className = ui.view === 'table' ? 'tbl' : '';
+
+  aside.querySelector('#btnNew').onclick = ()=>openTemplatePicker();
+  aside.querySelector('#searchBox').oninput = (ev)=>{ ui.search = ev.target.value; renderList(); renderMain(); };
+  aside.querySelector('#typeFilter').onchange = (ev)=>{
+    ui.typeFilter = ev.target.value;
+    const labels = allFieldLabels(ui.typeFilter);
+    ui.filters = ui.filters.filter(f=>!f.label || labels.indexOf(f.label) >= 0);
+    renderFilters(); renderList(); renderMain();
+  };
+  aside.querySelectorAll('[data-view]').forEach(b=>{
+    b.onclick = ()=>{
+      ui.view = b.dataset.view;
+      if(ui.view === 'table') ui.openId = null;
+      else if(ui.openId === null && state.entries.length) ui.openId = state.entries[0].id;
+      render();
+    };
+  });
+
+  renderFilters();
+  renderList();
+  renderMain();
+}
+
+/* 侧栏的字段筛选条件 */
+function renderFilters(){
+  const box = document.getElementById('filterBox');
+  if(!box) return;
+  const labels = allFieldLabels(ui.typeFilter);
+  if(!labels.length){ box.innerHTML = ''; return; }
+  box.innerHTML = ui.filters.map((f,i)=>
+    '<div class="filt-row">' +
+      '<select class="fsel"><option value="">字段…</option>' +
+        labels.map(l=>'<option value="'+esc(l)+'"'+(l===f.label?' selected':'')+'>'+esc(l)+'</option>').join('') +
+      '</select>' +
+      '<select class="fval"'+(f.label?'':' disabled')+'>' +
+        '<option value="">（任意值）</option>' +
+        (f.label ? fieldValues(f.label, ui.typeFilter)
+          .map(v=>'<option value="'+esc(v)+'"'+(v===f.value?' selected':'')+'>'+esc(v)+'</option>').join('') : '') +
+      '</select>' +
+      '<button class="btn icon sm ghost" title="移除条件">×</button>' +
+    '</div>'
+  ).join('') + '<span class="fadd" id="filtAdd">＋ 筛选条件</span>';
+  box.querySelectorAll('.filt-row').forEach((row,i)=>{
+    row.querySelector('.fsel').onchange = ev=>{
+      ui.filters[i].label = ev.target.value;
+      ui.filters[i].value = '';
+      renderFilters(); renderList(); renderMain();
+    };
+    row.querySelector('.fval').onchange = ev=>{
+      ui.filters[i].value = ev.target.value;
+      renderList(); renderMain();
+    };
+    row.querySelector('button').onclick = ()=>{
+      ui.filters.splice(i,1);
+      renderFilters(); renderList(); renderMain();
+    };
+  });
+  const add = box.querySelector('#filtAdd');
+  if(add) add.onclick = ()=>{ ui.filters.push({label:'',value:''}); renderFilters(); };
+}
+
+/* 表格视图：字段作列 */
+function renderTable(main){
+  const list = filteredEntries();
+  const cols = allFieldLabels(ui.typeFilter).slice(0, 6);
+  const showType = (ui.typeFilter === 'all');
+  if(!list.length){
+    main.innerHTML = '<div class="empty"><h3>没有匹配的词条</h3>' +
+      '<p>'+(ui.filters.length ? '当前筛选条件下没有词条，放宽或移除条件试试。' : '点左侧「＋ 新建词条」开始。')+'</p></div>';
+    return;
+  }
+  main.innerHTML = '<div class="card tbl-card">' +
+    '<table class="etable"><thead><tr><th>名称</th>' +
+      (showType ? '<th>类型</th>' : '') +
+      cols.map(c=>'<th>'+esc(c)+'</th>').join('') +
+      '<th>纪年</th></tr></thead><tbody>' +
+    list.map(e=>{
+      const tp = TYPES[e.type] || TYPES.lore;
+      return '<tr data-id="'+esc(e.id)+'">' +
+        '<td class="nm"><span class="dot" style="background:'+tp.color+'"></span>'+esc(e.name)+'</td>' +
+        (showType ? '<td>'+tp.label+'</td>' : '') +
+        cols.map(c=>{
+          const f = (e.fields||[]).find(x=>x.label === c);
+          return '<td>'+(f && f.value ? linkify(f.value) : '<span class="na">—</span>')+'</td>';
+        }).join('') +
+        '<td class="yr">'+esc(e.year||'')+'</td></tr>';
+    }).join('') +
+    '</tbody></table></div>';
+  main.querySelectorAll('tr[data-id]').forEach(tr=>{
+    tr.onclick = ()=>{ ui.openId = tr.dataset.id; ui.editing = undefined; render(); };
+  });
+}
+
+/* 现有词条里出现过的字段名，按使用次数从多到少 */
+function allFieldLabels(type){
+  const cnt = {}, order = [];
+  for(const e of state.entries){
+    if(type && type !== 'all' && e.type !== type) continue;
+    for(const f of (e.fields||[])){
+      if(!f.label || !f.value) continue;
+      if(!cnt[f.label]){ cnt[f.label] = 0; order.push(f.label); }
+      cnt[f.label]++;
+    }
+  }
+  return order.sort((a,b)=>cnt[b] - cnt[a]);
+}
+function fieldValues(label, type){
+  const s = [];
+  for(const e of state.entries){
+    if(type && type !== 'all' && e.type !== type) continue;
+    const f = (e.fields||[]).find(x=>x.label === label);
+    if(f && f.value && s.indexOf(f.value) < 0) s.push(f.value);
+  }
+  return s.sort();
+}
+
+function filteredEntries(){
+  const q = ui.search.trim();
+  return state.entries.filter(e=>{
+    if(ui.typeFilter!=='all' && e.type!==ui.typeFilter) return false;
+    for(const f of ui.filters){
+      if(!f.label) continue;
+      const fld = (e.fields||[]).find(x=>x.label === f.label);
+      if(!fld) return false;
+      if(f.value && String(fld.value) !== f.value) return false;
+    }
+    if(!q) return true;
+    const hay = namesOf(e).join(' ') + ' ' + (e.content||'') + ' ' + (e.fields||[]).map(f=>(f.label||'')+(f.value||'')).join(' ');
+    return hay.toLowerCase().includes(q.toLowerCase());
+  });
+}
+
+function renderList(){
+  const box = document.getElementById('entryList');
+  if(!box) return;
+  if(ui.view === 'table'){ box.innerHTML = ''; return; }
+  const list = filteredEntries();
+  if(!list.length){ box.innerHTML = '<div style="color:var(--tx3);font-size:13px;padding:12px 4px;">（无匹配词条）</div>'; return; }
+  const groups = {};
+  for(const e of list){ (groups[e.type] = groups[e.type]||[]).push(e); }
+  box.innerHTML = Object.entries(groups).map(([t, es])=>{
+    const tp = TYPES[t]||TYPES.lore;
+    return '<div class="group"><h4>'+tp.label+' · '+es.length+
+      '<button class="gadd" data-type="'+t+'" title="用'+tp.label+'的默认模板新建">＋</button></h4>' +
+      es.map(e=>'<div class="item'+(e.id===ui.openId&&!ui.editing?' on':'')+'" data-id="'+esc(e.id)+'">' +
+        '<span class="dot" style="background:'+tp.color+'"></span>' +
+        '<span class="nm">'+esc(e.name)+'</span>' +
+        (e.year?'<span class="yr">'+esc(e.year)+'</span>':'') + '</div>').join('') +
+      '</div>';
+  }).join('');
+  box.querySelectorAll('.item').forEach(el=>el.onclick=()=>{ ui.openId = el.dataset.id; ui.editing = undefined; render(); });
+  box.querySelectorAll('.gadd').forEach(b=>b.onclick = ev=>{
+    ev.stopPropagation();
+    newWithTemplate(b.dataset.type);
+  });
+}
+
+function renderMain(){
+  const main = document.getElementById('main');
+  if(!main) return;
+  if(ui.editing!==undefined){ renderEditor(main); return; }
+  if(ui.view === 'table' && ui.openId === null){ renderTable(main); return; }
+  const e = entryById(ui.openId);
+  if(!e){
+    if(!state.entries.length){
+      main.innerHTML = '<div class="empty"><h3>藏经阁空空如也</h3><p>点左侧「＋ 新建词条」，或者直接往 data 文件夹里放 .md 文件然后回来刷新。<br>写正文时提到别的词条名字，会自动变成链接——不需要任何标记语法。</p>' +
+        '<div class="ops-row" style="justify-content:center;"><button class="btn subtle sm" id="btnReloadEmpty">重新读取文件夹</button></div></div>';
+      const rb = main.querySelector('#btnReloadEmpty');
+      if(rb) rb.onclick = ()=>refresh();
+    } else {
+      main.innerHTML = '<div class="empty"><h3>选择一个词条阅读</h3><p>左侧列表里点一个，或在正文中点任何带虚线的名字跳转。</p></div>';
+    }
+    return;
+  }
+  const tp = TYPES[e.type]||TYPES.lore;
+  const fields = (e.fields||[]).filter(f=>f.value);
+  const backlinks = mentionsOf(e.id);
+  const backRow = ui.view === 'table'
+    ? '<div class="back-row"><button class="btn ghost sm" id="btnBackTbl">← 返回表格</button></div>' : '';
+  main.innerHTML = backRow + '<div class="card">' +
+    '<div class="entry-head"><span class="badge" style="background:'+tp.fill+';color:'+tp.color+'">'+tp.label+'</span>' +
+    '<h2>'+esc(e.name)+'</h2>' +
+    '<div class="ops"><button class="btn sm subtle" id="btnEdit">编辑</button><button class="btn sm ghost danger" id="btnDel">删除</button></div></div>' +
+    (aliasesOf(e).length?'<div class="aliases">别名：'+aliasesOf(e).map(esc).join('、')+'</div>':'') +
+    (e.year?'<div style="font-size:13px;color:var(--tx2);">纪年：<b>'+esc(e.year)+'</b></div>':'') +
+    (fields.length?'<table class="fields">'+fields.map(f=>'<tr><td>'+esc(f.label)+'</td><td>'+linkify(f.value)+'</td></tr>').join('')+'</table>':'') +
+    '<div class="content">'+renderContent(e.content)+'</div>' +
+    '<div class="backlinks"><h3>被提及于（'+backlinks.length+'）</h3>' +
+      (backlinks.length?backlinks.map(b=>{const bt=TYPES[b.type]||TYPES.lore;
+        return '<div class="bl-item"><a class="lk" data-id="'+esc(b.id)+'">'+esc(b.name)+'</a> <span style="color:var(--tx3);font-size:12px;">· '+bt.label+'</span></div>';}).join('')
+      :'<div class="bl-item" style="color:var(--tx3);">暂无其他词条提到 TA</div>') +
+    '</div>' +
+    '<div class="backlinks"><h3>历史版本（<span id="verCount">·</span>）</h3>' +
+      '<div class="bl-item"><span class="fadd" id="btnVer">查看与恢复历史版本</span></div></div>' +
+    '</div>';
+  const bk = main.querySelector('#btnBackTbl');
+  if(bk) bk.onclick = ()=>{ ui.openId = null; render(); };
+  const bv = main.querySelector('#btnVer');
+  if(bv){
+    bv.onclick = ()=>openVersionHistory(e.type, e.name);
+    versionList(e.type, e.name).then(items=>{
+      const vc = main.querySelector('#verCount');
+      if(vc) vc.textContent = items.length;
+    });
+  }
+  main.querySelector('#btnEdit').onclick = ()=>{ ui.editing = e.id; render(); };
+  main.querySelector('#btnDel').onclick = async ()=>{
+    if(confirm('确定删除「'+e.name+'」？\n文件会移到回收站（data/.trash/'+(TYPES[e.type]||TYPES.lore).label+'），可在「数据」页随时恢复。')){
+      await removeEntryFile(e.type, e.name);
+      await refresh();
+    }
+  };
+}
+
+function renderEditor(main){
+  const ed = ui.editing;
+  const isNew = (ed==='new') || (!!ed && typeof ed==='object');
+  const e = ed==='new'
+    ? presetFrom(defaultTemplateOf('role'), 'role')
+    : (!!ed && typeof ed==='object')
+    ? Object.assign({name:'', type:'lore', aliases:[], year:'', fields:[], content:''}, ed.preset)
+    : Object.assign({}, entryById(ed));
+  /* 保留 preset 带进来的 kind/options；没有则按字段名去默认模板里反查 */
+  e.fields = (e.fields||[]).map(f=>{
+    const k = kindOf(f.label||'', e.type);
+    return {label:f.label||'', value:f.value||'',
+            kind:f.kind || k.kind, options:f.options || k.options || null};
+  });
+  main.innerHTML = '<div class="card editor">' +
+    '<div class="row"><div style="flex:2;min-width:200px;"><label>名称 *（也是文件名，不能含 \\ / : * ? " &lt; &gt; |）</label><input type="text" id="fName" value="'+esc(e.name)+'" placeholder="如：洛无衣"></div>' +
+    '<div style="flex:1;min-width:140px;"><label>类型（决定存入哪个文件夹）</label><select id="fType">' +
+      Object.entries(TYPES).map(([k,v])=>'<option value="'+k+'"'+(e.type===k?' selected':'')+'>'+v.label+'</option>').join('')+'</select></div></div>' +
+    '<div class="row"><div style="flex:2;min-width:200px;"><label>别名（用逗号分隔，正文提到别名也会自动关联）</label><input type="text" id="fAliases" value="'+esc(aliasesOf(e).join('，'))+'" placeholder="如：无衣，洛师妹"></div>' +
+    '<div style="flex:1;min-width:140px;"><label>纪年（选填，用于编年史定位）</label><input type="text" id="fYear" value="'+esc(e.year||'')+'" placeholder="如：公元前300年3月2日 / 宏兴25565年"><div id="fYearHint" style="font-size:11px;color:var(--tx3);margin-top:3px;min-height:16px;line-height:1.5;"></div></div></div>' +
+    '<label>属性字段</label><div id="fRows"></div>' +
+    '<div class="fadd-row"><span class="fadd" id="fAdd">＋ 添加字段</span><span class="fadd" id="fTpl">切换模板</span>' +
+      '<span class="fadd-hint" id="fTplName"></span></div>' +
+    '<label>正文（直接写名字即可自动关联，空一行分段）</label><textarea id="fContent" placeholder="这里写生平、来历、设定描述…">'+esc(e.content||'')+'</textarea>' +
+    '<div class="ops-row" style="margin-top:18px;"><button class="btn primary" id="btnSave">保存到文件</button><button class="btn ghost" id="btnCancel">取消</button></div>' +
+    '<datalist id="dlEntries">'+refOptions()+'</datalist></div>';
+
+  const rows = main.querySelector('#fRows');
+
+  function collectFields(){
+    return [...rows.querySelectorAll('.frow')].map(r=>({
+      label:(r.querySelector('.fl')||{}).value ? r.querySelector('.fl').value.trim() : '',
+      value:(r.querySelector('.fv')||{}).value ? r.querySelector('.fv').value.trim() : '',
+      kind:r.dataset.kind || 'text'
+    })).filter(f=>f.label || f.value);
+  }
+  function fillFields(list){
+    rows.innerHTML = '';
+    list.forEach(f=>addRow(f.label, f.value, f.kind, f.options));
+  }
+
+  function addRow(label, value, kind, options){
+    const div = document.createElement('div');
+    div.className = 'frow';
+    const k = (kind==='number'||kind==='select'||kind==='entry') ? kind : 'text';
+    value = value == null ? '' : String(value);
+    let ctrl = '';
+    if(k === 'number'){
+      ctrl = '<input type="number" step="any" class="fv" placeholder="数字" value="'+esc(value)+'">';
+    }else if(k === 'select'){
+      const opts = Array.isArray(options) ? options.filter(Boolean) : [];
+      let oh = '<option value="">（未填）</option>';
+      if(value && opts.indexOf(value) < 0) oh += '<option value="'+esc(value)+'">'+esc(value)+'（原值）</option>';
+      oh += opts.map(o=>'<option value="'+esc(o)+'"'+(o===value?' selected':'')+'>'+esc(o)+'</option>').join('');
+      ctrl = '<select class="fv">'+oh+'</select>';
+    }else if(k === 'entry'){
+      ctrl = '<input type="text" class="fv ref" list="dlEntries" placeholder="词条名，多个用逗号分隔" value="'+esc(value)+'">';
+    }else{
+      ctrl = '<input type="text" class="fv" placeholder="内容" value="'+esc(value)+'">';
+    }
+    div.innerHTML = '<input type="text" class="fl" placeholder="字段名" value="'+esc(label)+'">'+ctrl+
+                    '<button class="btn icon sm ghost" title="删除此字段">×</button>';
+    div.dataset.kind = k;
+    if(k === 'entry'){
+      const hint = document.createElement('div');
+      hint.className = 'fhint';
+      const inp = div.querySelector('.fv');
+      const check = ()=>{
+        const v = inp.value.trim();
+        if(!v){ hint.textContent = ''; return; }
+        const known = allEntryNames();
+        const miss = v.split(/[,，、]/).map(s=>s.trim()).filter(Boolean).filter(p=>known.indexOf(p) < 0);
+        hint.textContent = miss.length ? '未找到词条：'+miss.join('、')+'（可保存，但不会自动链接）' : '';
+      };
+      inp.addEventListener('blur', check);
+      inp.addEventListener('input', ()=>{ hint.textContent = ''; });
+      div.appendChild(hint);
+    }
+    div.querySelector('button').onclick = ()=>div.remove();
+    rows.appendChild(div);
+  }
+  e.fields.forEach(f=>addRow(f.label, f.value, f.kind, f.options));
+
+  const fTplName = main.querySelector('#fTplName');
+  if(fTplName){
+    const tplName = (e._tpl && (state.templates||[]).find(t=>t.id===e._tpl));
+    fTplName.textContent = tplName ? '模板：'+tplName.name : (isNew ? '' : '按字段名自动匹配模板');
+  }
+
+  main.querySelector('#fAdd').onclick = ()=>addRow('', '', 'text');
+  main.querySelector('#fTpl').onclick = ()=>{
+    openTemplatePicker({
+      type: main.querySelector('#fType').value,
+      title: '切换模板',
+      onPick: (tpl)=>{
+        const cur = collectFields();
+        const merged = (tpl.fields||[]).map(f=>{
+          const old = cur.find(x=>x.label === f.label);
+          return {label:f.label, value: old ? old.value : '', kind:f.kind, options:f.options};
+        });
+        for(const f of cur){
+          if(f.value && !merged.some(x=>x.label === f.label)) merged.push(f);
+        }
+        fillFields(merged);
+        if(fTplName) fTplName.textContent = '模板：'+tpl.name;
+      }
+    });
+  };
+  main.querySelector('#fType').onchange = (ev)=>{
+    const nt = ev.target.value;
+    const cur = collectFields();
+    let next;
+    if(!cur.some(f=>f.value)){
+      next = (defaultTemplateOf(nt).fields||[]).map(f=>({label:f.label, value:'', kind:f.kind, options:f.options}));
+    }else{
+      next = cur.map(f=>{
+        const k = kindOf(f.label, nt);
+        return {label:f.label, value:f.value, kind:k.kind, options:k.options};
+      });
+      for(const f of (defaultTemplateOf(nt).fields||[])){
+        if(!next.some(x=>x.label === f.label)) next.push({label:f.label, value:'', kind:f.kind, options:f.options});
+      }
+    }
+    fillFields(next);
+  };
+  main.querySelector('#btnCancel').onclick = ()=>{ ui.editing = undefined; render(); };
+  main.querySelector('#btnSave').onclick = doSave;
+  main.querySelector('#fContent').addEventListener('keydown', ev=>{
+    if((ev.ctrlKey||ev.metaKey) && ev.key==='s'){ ev.preventDefault(); doSave(); }
+  });
+  main.querySelector('#fName').focus();
+
+  const yearInput = main.querySelector('#fYear');
+  const yearHint = main.querySelector('#fYearHint');
+  function updYearHint(){
+    const v = yearInput.value.trim();
+    if(!v){ yearHint.textContent=''; return; }
+    const c = parseChrono(v);
+    if(!c || !c.ok){
+      yearHint.textContent = '⚠ 暂时无法识别，会归入编年史「未定年」。示例：公元前300年3月2日、公元300年、宏兴25565年5月';
+      yearHint.style.color = '#a3540b';
+      return;
+    }
+    let msg = '✓ ' + describeChrono(c);
+    if(c.era!=='公元' && state.eraListed.indexOf(c.era)<0) msg += ' · 纪元「'+c.era+'」未列入「纪元表」，将排在已列纪元之后';
+    yearHint.textContent = msg;
+    yearHint.style.color = 'var(--tx3)';
+  }
+  yearInput.addEventListener('input', updYearHint);
+  updYearHint();
+
+  async function doSave(){
+    const rawName = main.querySelector('#fName').value.trim();
+    if(!rawName){ alert('名称不能为空'); return; }
+    const base = safeName(rawName);
+    const type = main.querySelector('#fType').value;
+    const newId = (TYPES[type]||TYPES.lore).label + '/' + base;
+    const oldId = isNew ? null : ui.editing;
+    if(newId !== oldId && entryById(newId)){
+      if(!confirm('已存在同名词条「'+base+'」，保存将覆盖它。继续？')) return;
+    }
+    const fields = [...rows.querySelectorAll('.frow')].map(r=>({
+      label: r.querySelector('.fl').value.trim(),
+      value: r.querySelector('.fv').value.trim()
+    })).filter(f=>f.label);
+    const aliases = main.querySelector('#fAliases').value.split(/[,，、\s]+/).map(s=>s.trim()).filter(Boolean);
+    const obj = { id:newId, name:base, type, aliases, year: main.querySelector('#fYear').value.trim(), fields, content: main.querySelector('#fContent').value };
+    try{
+      await writeEntry(obj);
+    }catch(err){
+      alert('写入文件失败：' + (err.message || err));
+      return;
+    }
+    if(oldId && oldId !== newId){
+      const old = entryById(oldId);
+      if(old) await removeEntryFile(old.type, old.name, true); /* 改名：旧文件直接清理，不进回收站 */
+    }
+    ui.editing = undefined; ui.openId = newId;
+    await refresh();
+  }
+}
+
+function eraEntriesOf(era){
+  const ps = [];
+  for(const e of state.entries){
+    const c = parseChrono(e.year);
+    if(c && c.ok && c.era===era) ps.push(c);
+  }
+  return ps;
+}
+function eraRangeText(era){
+  const ps = eraEntriesOf(era);
+  if(!ps.length) return '暂无词条';
+  ps.sort((a,b)=>tPos(a)-tPos(b));
+  const a = ps[0], b = ps[ps.length-1];
+  const f = c=>{
+    if(c.era === '公元') return describeChrono(c);
+    let s = (c.year<0 ? '前'+(-c.year) : c.year) + '年';
+    if(c.month) s += c.month+'月';
+    if(c.day) s += c.day+'日';
+    return s;
+  };
+  return ps.length + ' 个词条 · ' + (ps.length===1 ? f(a) : f(a)+'—'+f(b));
+}
+
+/* ============ 模板选择面板 ============ */
+async function openTemplatePicker(opts){
+  opts = opts || {};
+  await ensureTemplates();
+  const all = state.templates || builtinTemplates();
+  const onPick = opts.onPick || (tpl => newWithTemplate(opts.type || tpl.type || 'role', tpl));
+
+  const mask = document.createElement('div');
+  mask.className = 'mask';
+  mask.innerHTML =
+    '<div class="modal">' +
+      '<div class="modal-hd"><h3>'+esc(opts.title || '选择模板')+'</h3>' +
+      '<span class="msub">决定新建词条时预填哪些字段</span>' +
+      '<button class="modal-x" id="tpX" title="关闭">×</button></div>' +
+      '<div class="modal-bd"><div id="tpGroups"></div></div>' +
+      '<div class="modal-ft"><button class="btn ghost sm" id="tpMgr">管理模板…</button><span class="spacer"></span>' +
+      '<button class="btn" id="tpCancel">关闭</button></div>' +
+    '</div>';
+  document.body.appendChild(mask);
+
+  const box = mask.querySelector('#tpGroups');
+  const groups = [['通用', all.filter(t=>t.type === null)]]
+    .concat(Object.keys(TYPES).map(k=>[TYPES[k].label, all.filter(t=>t.type === k)]))
+    .filter(g=>g[1].length);
+  box.innerHTML = groups.map(([gname, ts])=>
+    '<div class="tpl-sec"><h5>'+esc(gname)+'</h5>' +
+    ts.map(t=>{
+      const i = all.indexOf(t);
+      const fl = t.fields || [];
+      const summary = fl.slice(0,5).map(f=>f.label).join(' · ') || '（无字段）';
+      return '<div class="tpl-pick" data-i="'+i+'">' +
+        '<span class="tp-name">'+esc(t.name)+'</span>' +
+        (t.default ? '<span class="tp-badge">默认</span>' : '') +
+        '<span class="tp-sum">'+esc(summary)+(fl.length>5?' …':'')+'</span>' +
+        '<span class="tp-n">'+fl.length+' 字段</span></div>';
+    }).join('') + '</div>'
+  ).join('');
+
+  box.querySelectorAll('.tpl-pick').forEach(el=>{
+    el.onclick = ()=>{ close(); onPick(all[+el.dataset.i]); };
+  });
+
+  function close(){
+    mask.remove();
+    document.removeEventListener('keydown', onKey);
+  }
+  function onKey(ev){ if(ev.key === 'Escape') close(); }
+  document.addEventListener('keydown', onKey);
+  mask.querySelector('#tpX').onclick = close;
+  mask.querySelector('#tpCancel').onclick = close;
+  mask.onclick = ev=>{ if(ev.target === mask) close(); };
+  mask.querySelector('#tpMgr').onclick = ()=>{ close(); openTemplateManager(); };
+}
+
+/* ============ 模板管理弹窗 ============ */
+function openTemplateManager(){
+  let list = JSON.parse(JSON.stringify(normalizeTemplates(state.templates)));
+  let sel = 0;
+
+  const mask = document.createElement('div');
+  mask.className = 'mask';
+  mask.innerHTML =
+    '<div class="modal modal-lg">' +
+      '<div class="modal-hd"><h3>模板管理</h3>' +
+      '<span class="msub">只影响新建的词条，已有词条不受影响</span>' +
+      '<button class="modal-x" id="tmX" title="关闭">×</button></div>' +
+      '<div class="modal-bd">' +
+        '<div id="tmList"></div>' +
+        '<div class="tpl-add"><input type="text" id="tmNewName" placeholder="新模板名，如：反派">' +
+          '<select id="tmNewType"><option value="">通用</option>' +
+            Object.entries(TYPES).map(([k,v])=>'<option value="'+k+'">'+v.label+'</option>').join('') +
+          '</select><button class="btn primary" id="tmAdd">＋ 新建模板</button></div>' +
+        '<div class="tpl-sec"><h5>字段 · <span id="tmFldName"></span></h5>' +
+          '<div id="tmFields"></div>' +
+          '<span class="fadd" id="tmAddField">＋ 添加字段</span></div>' +
+      '</div>' +
+      '<div class="modal-ft"><button class="btn ghost danger sm" id="tmReset">恢复出厂默认</button>' +
+        '<span class="spacer"></span>' +
+        '<button class="btn ghost" id="tmCancel">取消</button>' +
+        '<button class="btn primary" id="tmSave">保存</button></div>' +
+    '</div>';
+  document.body.appendChild(mask);
+
+  const listBox = mask.querySelector('#tmList');
+  const fldBox  = mask.querySelector('#tmFields');
+  const fldName = mask.querySelector('#tmFldName');
+
+  function renderList(){
+    if(!list.length){ listBox.innerHTML = '<div class="era-empty">还没有模板，在下面新建一个</div>'; return; }
+    listBox.innerHTML = list.map((t,i)=>{
+      const tp = t.type ? TYPES[t.type] : null;
+      return '<div class="era-row'+(i===sel?' sel':'')+'" data-i="'+i+'">' +
+        '<span class="era-idx">'+(i+1)+'</span>' +
+        '<span class="badge" style="background:'+(tp?tp.fill:'var(--bg3)')+';color:'+(tp?tp.color:'var(--tx2)')+'">'+(tp?tp.label:'通用')+'</span>' +
+        '<input class="era-name" value="'+esc(t.name)+'" spellcheck="false">' +
+        '<span class="era-stat">'+(t.fields||[]).length+' 字段</span>' +
+        '<span class="era-ops">' +
+          '<button data-act="star" class="'+(t.default?'on':'')+'" title="'+(t.default?'已是默认':'设为默认')+'"'+(t.default?' disabled':'')+'>'+(t.default?'★':'☆')+'</button>' +
+          '<button data-act="up" title="上移"'+(i===0?' disabled':'')+'>↑</button>' +
+          '<button data-act="down" title="下移"'+(i===list.length-1?' disabled':'')+'>↓</button>' +
+          '<button data-act="dup" title="复制一份">⧉</button>' +
+          '<button class="del" data-act="del" title="删除">×</button>' +
+        '</span></div>';
+    }).join('');
+    listBox.querySelectorAll('.era-row').forEach(row=>{
+      const i = +row.dataset.i;
+      row.querySelector('.era-name').oninput = ev=>{ list[i].name = ev.target.value; };
+      row.onclick = ev=>{
+        if(ev.target.closest('.era-ops') || ev.target.classList.contains('era-name')) return;
+        sel = i; renderList(); renderFields();
+      };
+      row.querySelectorAll('.era-ops button').forEach(b=>{
+        b.onclick = ()=>{
+          const act = b.dataset.act;
+          if(act === 'star'){
+            list.forEach(x=>{ if(x.type === list[i].type) x.default = false; });
+            list[i].default = true;
+            renderList();
+          }else if(act === 'up' && i > 0){
+            const x = list[i]; list[i] = list[i-1]; list[i-1] = x; sel = i-1; renderList();
+          }else if(act === 'down' && i < list.length-1){
+            const x = list[i]; list[i] = list[i+1]; list[i+1] = x; sel = i+1; renderList();
+          }else if(act === 'dup'){
+            const copy = JSON.parse(JSON.stringify(list[i]));
+            copy.id = 'tpl_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+            copy.name = list[i].name + ' 副本';
+            copy.default = false;
+            list.splice(i+1, 0, copy);
+            sel = i+1; renderList(); renderFields();
+          }else if(act === 'del'){
+            if(!confirm('删除模板「'+list[i].name+'」？')) return;
+            list.splice(i,1);
+            if(sel >= list.length) sel = Math.max(0, list.length-1);
+            renderList(); renderFields();
+          }
+        };
+      });
+    });
+  }
+
+  function renderFields(){
+    const t = list[sel];
+    if(!t){ fldBox.innerHTML = '<div class="era-empty">先在上面新建或选中一个模板</div>'; fldName.textContent = ''; return; }
+    fldName.textContent = t.name;
+    const fl = t.fields || [];
+    if(!fl.length){
+      fldBox.innerHTML = '<div class="era-empty">这个模板还没有字段，点下面「＋ 添加字段」</div>';
+      return;
+    }
+    fldBox.innerHTML = fl.map((f,j)=>{
+      const optCtrl = (f.kind === 'select')
+        ? '<input class="fo" placeholder="选项，逗号分隔" value="'+esc((f.options||[]).join('，'))+'">'
+        : '<span class="fo-na">—</span>';
+      return '<div class="tpl-frow" data-j="'+j+'">' +
+        '<input class="fn" placeholder="字段名" value="'+esc(f.label)+'">' +
+        '<select class="fk">'+Object.entries(KINDS).map(([k,v])=>'<option value="'+k+'"'+(f.kind===k?' selected':'')+'>'+v+'</option>').join('')+'</select>' +
+        optCtrl +
+        '<span class="ops">' +
+          '<button data-act="up" title="上移"'+(j===0?' disabled':'')+'>↑</button>' +
+          '<button data-act="down" title="下移"'+(j===fl.length-1?' disabled':'')+'>↓</button>' +
+          '<button class="del" data-act="del" title="删除">×</button>' +
+        '</span></div>';
+    }).join('');
+    fldBox.querySelectorAll('.tpl-frow').forEach(row=>{
+      const j = +row.dataset.j;
+      const f = list[sel].fields[j];
+      row.querySelector('.fn').oninput = ev=>{ f.label = ev.target.value; };
+      row.querySelector('.fk').onchange = ev=>{
+        f.kind = ev.target.value;
+        if(f.kind === 'select'){ if(!f.options) f.options = []; }
+        else f.options = null;
+        renderFields();
+      };
+      const fo = row.querySelector('.fo');
+      if(fo) fo.oninput = ev=>{
+        f.options = ev.target.value.split(/[,，、]/).map(s=>s.trim()).filter(Boolean);
+      };
+      row.querySelectorAll('.ops button').forEach(b=>{
+        b.onclick = ()=>{
+          const arr = list[sel].fields, act = b.dataset.act;
+          if(act === 'up' && j > 0){ const x = arr[j]; arr[j] = arr[j-1]; arr[j-1] = x; renderFields(); }
+          if(act === 'down' && j < arr.length-1){ const x = arr[j]; arr[j] = arr[j+1]; arr[j+1] = x; renderFields(); }
+          if(act === 'del'){ arr.splice(j,1); renderFields(); renderList(); }
+        };
+      });
+    });
+  }
+
+  mask.querySelector('#tmAddField').onclick = ()=>{
+    const t = list[sel];
+    if(!t) return;
+    t.fields = t.fields || [];
+    t.fields.push({label:'', kind:'text', options:null});
+    renderFields(); renderList();
+  };
+  mask.querySelector('#tmAdd').onclick = ()=>{
+    const name = mask.querySelector('#tmNewName').value.trim();
+    if(!name){ alert('给模板起个名字'); return; }
+    const ty = mask.querySelector('#tmNewType').value || null;
+    const t = {
+      id:'tpl_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      name:name, type:ty, default:false,
+      fields: ty ? (defaultTemplateOf(ty).fields||[]).map(f=>Object.assign({}, f)) : []
+    };
+    list.push(t);
+    sel = list.length - 1;
+    mask.querySelector('#tmNewName').value = '';
+    renderList(); renderFields();
+  };
+  mask.querySelector('#tmReset').onclick = ()=>{
+    if(!confirm('恢复出厂默认模板？你自定义的所有模板都会被覆盖。')) return;
+    list = builtinTemplates();
+    sel = 0;
+    renderList(); renderFields();
+  };
+  mask.querySelector('#tmSave').onclick = async ()=>{
+    for(const t of list){
+      for(const f of (t.fields||[])){
+        if(!String(f.label||'').trim()){
+          alert('模板「'+t.name+'」里有没填名字的字段，请补齐或删掉它');
+          return;
+        }
+      }
+    }
+    try{
+      await templatesSave(list);
+    }catch(e){
+      alert('保存失败：' + (e.message || e));
+      return;
+    }
+    close();
+    render();
+  };
+
+  function close(){
+    mask.remove();
+    document.removeEventListener('keydown', onKey);
+  }
+  function onKey(ev){ if(ev.key === 'Escape') close(); }
+  document.addEventListener('keydown', onKey);
+  mask.querySelector('#tmX').onclick = close;
+  mask.querySelector('#tmCancel').onclick = close;
+  mask.onclick = ev=>{ if(ev.target === mask) close(); };
+
+  renderList();
+  renderFields();
+}
+
+function openEraTable(){
+  let list = state.eraListed.slice();
+  if(list.indexOf('公元') < 0) list = ['公元'].concat(list);
+
+  const mask = document.createElement('div');
+  mask.className = 'mask';
+  mask.innerHTML =
+    '<div class="modal">' +
+      '<div class="modal-hd"><h3>纪元表</h3><span class="msub">从上到下＝时间先后</span>' +
+      '<button class="modal-x" id="eraX" title="关闭">×</button></div>' +
+      '<div class="modal-bd">' +
+        '<div class="era-list" id="eraRows"></div>' +
+        '<div class="era-add"><input type="text" id="eraNew" placeholder="新纪元名，如：玄黄" spellcheck="false">' +
+        '<button class="btn primary" id="eraAdd">＋ 添加</button></div>' +
+        '<div class="era-extra" id="eraExtra"></div>' +
+      '</div>' +
+      '<div class="modal-ft"><span id="eraWarn"></span><span class="spacer"></span>' +
+      '<button class="btn ghost" id="eraCancel">取消</button><button class="btn primary" id="eraSave">保存</button></div>' +
+    '</div>';
+  document.body.appendChild(mask);
+
+  const rowsBox = mask.querySelector('#eraRows');
+  const newInp  = mask.querySelector('#eraNew');
+  const extraEl = mask.querySelector('#eraExtra');
+  const warnEl  = mask.querySelector('#eraWarn');
+
+  function renderRows(){
+    if(!list.length){
+      rowsBox.innerHTML = '<div class="era-empty">还没有纪元，在下面添加一个</div>';
+    }else{
+      rowsBox.innerHTML = list.map((name,i)=>{
+        const builtin = (name === '公元');
+        return '<div class="era-row'+(builtin?' builtin':'')+'" data-i="'+i+'">' +
+          '<span class="era-idx">'+(builtin?'∞':(i+1))+'</span>' +
+          '<input class="era-name" value="'+esc(name)+'"'+(builtin?' disabled':'')+' spellcheck="false">' +
+          '<span class="era-stat">'+esc(eraRangeText(name))+'</span>' +
+          '<span class="era-ops">' +
+            '<button data-act="up" title="上移"'+(builtin||i===0?' disabled':'')+'>↑</button>' +
+            '<button data-act="down" title="下移"'+(builtin||i===list.length-1?' disabled':'')+'>↓</button>' +
+            '<button class="del" data-act="del" title="移除"'+(builtin?' disabled':'')+'>×</button>' +
+          '</span></div>';
+      }).join('');
+    }
+    rowsBox.querySelectorAll('.era-name').forEach(inp=>{
+      inp.oninput = ()=>{ list[+inp.closest('.era-row').dataset.i] = inp.value; };
+    });
+    rowsBox.querySelectorAll('.era-ops button').forEach(b=>{
+      b.onclick = ()=>{
+        const i = +b.closest('.era-row').dataset.i, act = b.dataset.act;
+        if(act==='up'   && i>0){ const x=list[i]; list[i]=list[i-1]; list[i-1]=x; renderRows(); }
+        if(act==='down' && i<list.length-1){ const x=list[i]; list[i]=list[i+1]; list[i+1]=x; renderRows(); }
+        if(act==='del'){ list.splice(i,1); renderRows(); renderExtra(); renderWarn(); }
+      };
+    });
+  }
+
+  function renderExtra(){
+    const used = allEras().filter(x=>list.indexOf(x)<0);
+    extraEl.innerHTML = used.length
+      ? '正在使用但尚未登记：' + used.map(n=>
+          '<span class="era-chip">'+esc(n)+'<button data-add="'+esc(n)+'" title="加入纪元表">＋</button></span>').join('')
+      : '';
+    extraEl.querySelectorAll('button[data-add]').forEach(b=>{
+      b.onclick = ()=>{ list.push(b.dataset.add); renderRows(); renderExtra(); renderWarn(); };
+    });
+  }
+
+  function renderWarn(){
+    const missing = allEras().filter(x=>list.indexOf(x)<0);
+    warnEl.textContent = missing.length ? '「'+missing.join('」「')+'」仍有词条使用，未登记会排在最后' : '';
+    warnEl.style.color = missing.length ? '#a3540b' : '';
+  }
+
+  function addNew(){
+    const v = newInp.value.trim();
+    if(!v) return;
+    if(list.indexOf(v) < 0){ list.push(v); renderRows(); renderExtra(); renderWarn(); }
+    newInp.value = '';
+    newInp.focus();
+  }
+
+  function close(){
+    mask.remove();
+    document.removeEventListener('keydown', onKey);
+  }
+  function onKey(ev){ if(ev.key === 'Escape') close(); }
+  document.addEventListener('keydown', onKey);
+
+  mask.querySelector('#eraX').onclick = close;
+  mask.querySelector('#eraCancel').onclick = close;
+  mask.onclick = ev=>{ if(ev.target === mask) close(); };
+  mask.querySelector('#eraAdd').onclick = addNew;
+  newInp.onkeydown = ev=>{ if(ev.key === 'Enter') addNew(); };
+
+  mask.querySelector('#eraSave').onclick = async ()=>{
+    const cleaned = [];
+    for(const n of list){
+      const v = String(n||'').trim().split(/[\s，,（(：:【\[]/)[0];
+      if(v && cleaned.indexOf(v) < 0) cleaned.push(v);
+    }
+    if(!cleaned.length){ alert('至少需要一个纪元'); return; }
+    const content = cleaned.join('\n') + '\n';
+    const existing = state.entries.find(e=>e.name === '纪元表');
+    const obj = existing
+      ? Object.assign({}, existing, {content})
+      : {id:'设定/纪元表', name:'纪元表', type:'lore', aliases:[], year:'', fields:[], content};
+    try{
+      await writeEntry(obj);
+    }catch(err){
+      alert('保存失败：' + (err.message || err));
+      return;
+    }
+    close();
+    await refresh();
+  };
+
+  renderRows();
+  renderExtra();
+  renderWarn();
+  newInp.focus();
+}
+
+function tlListHtml(list, rawYear){
+  let html = '', lastEra = null;
+  for(const p of list){
+    if(!rawYear && p.c.era !== lastEra){
+      lastEra = p.c.era;
+      html += '<h4 class="tl-era-h">'+esc(eraDisplayName(p.c.era))+'</h4>';
+    }
+    const tp = TYPES[p.e.type] || TYPES.lore;
+    html += '<div class="tl-item"><div class="tl-year">'+esc(p.e.year)+'</div>' +
+      '<div class="tl-body"><h3 data-id="'+esc(p.e.id)+'">'+esc(p.e.name)+
+      '<span class="tl-type badge" style="background:'+tp.fill+';color:'+tp.color+'">'+tp.label+'</span></h3>' +
+      '<div class="content">'+renderContent(p.e.content)+'</div></div></div>';
+  }
+  return '<div class="tl">'+html+'</div>';
+}
+
+function renderTimeline(){
+  const parsed = state.entries.filter(e=>e.year && e.year.trim()).map(e=>({e, c:parseChrono(e.year)}));
+  const dated = parsed.filter(p=>p.c && p.c.ok);
+  const undated = parsed.filter(p=>!(p.c && p.c.ok));
+  dated.sort(cmpChrono);
+  const hasEraTable = state.entries.some(e=>e.name==='纪元表');
+
+  app.innerHTML = '<main class="tl-page">' +
+    '<div class="page-hd"><h2>编年史</h2></div>' +
+    '<div class="toolbar">' +
+      '<div class="seg">' +
+        '<button class="btn" id="tlFit">全览</button>' +
+        '<button class="btn icon" id="tlMinus" title="缩小">−</button>' +
+        '<button class="btn icon" id="tlPlus" title="放大">＋</button>' +
+      '</div>' +
+      '<span class="hint">滚轮缩放 · 拖拽平移 · 点击节点打开词条</span>' +
+      '<span class="spacer"></span>' +
+      '<button class="btn subtle sm" id="tlEra">管理纪元</button>' +
+    '</div>' +
+    (!hasEraTable ? '<p style="font-size:12px;color:#a3540b;margin:4px 0;">还没有「纪元表」：点上方按钮打开纪元管理，添加并排列你的纪元，多个纪元才能正确混排。</p>' : '') +
+    (dated.length
+      ? '<div id="tlBox" style="margin-top:8px;"><canvas id="tlCanvas"></canvas><div class="tl-tip" id="tlTip"></div></div>'
+      : '<div class="empty"><h3>'+(undated.length?'纪年都未能识别':'还没有带纪年的词条')+'</h3><p>给词条填上能识别的「纪年」（如 公元前300年、宏兴25565年），它就会出现在时间轴上。</p></div>') +
+    (dated.length ? '<h3 style="font-size:14px;font-weight:600;margin:26px 0 4px;">明细</h3>'+tlListHtml(dated,false) : '') +
+    (undated.length ? '<h3 style="font-size:14px;font-weight:600;margin:26px 0 4px;">未定年（'+undated.length+'）</h3><p style="font-size:12px;color:var(--tx3);margin-bottom:6px;">这些纪年写法暂时无法识别，不参与时间轴排序。</p>'+tlListHtml(undated,true) : '') +
+    '</main>';
+
+  app.querySelector('#tlEra').onclick = openEraTable;
+  app.querySelectorAll('.tl-body h3').forEach(h=>h.onclick=()=>{ ui.tab='entries'; ui.openId=h.dataset.id; ui.editing=undefined; render(); });
+  if(!dated.length) return;
+
+  /* ---- 横向时间轴（canvas）---- */
+  const box = app.querySelector('#tlBox');
+  const canvas = app.querySelector('#tlCanvas');
+  const tip = app.querySelector('#tlTip');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const CH = 250, AXIS_Y = 145, PAD = 36, MAX_SCALE = 2000;
+
+  /* 纪元分段：按纪元表顺序排列，段内按年份（含月日小数）线性映射 */
+  const eras = [];
+  for(const p of dated){ if(!eras.some(sg=>sg.era===p.c.era)) eras.push({era:p.c.era}); }
+  eras.sort((a,b)=>eraRank(a.era)-eraRank(b.era));
+  for(const seg of eras){
+    const ts = dated.filter(p=>p.c.era===seg.era).map(p=>tPos(p.c));
+    seg.min = Math.min.apply(null, ts);
+    seg.max = Math.max.apply(null, ts);
+  }
+  const TOTAL = Math.max(1200, eras.length*260);
+  const base = Math.min(140, TOTAL/eras.length*0.45);
+  const spans = eras.map(sg=>Math.max(sg.max-sg.min, 40));
+  const sumSpan = spans.reduce((a,b)=>a+b, 0);
+  let walkX = 20;
+  for(let i=0;i<eras.length;i++){
+    const seg = eras[i];
+    seg.x0 = walkX;
+    seg.w = base + (TOTAL - base*eras.length) * spans[i]/sumSpan;
+    seg.x1 = seg.x0 + seg.w;
+    walkX = seg.x1 + 60;
+  }
+  const WORLD_W = walkX - 60 + 20;
+
+  function worldXOf(c){
+    const seg = eras.find(sg=>sg.era===c.era);
+    if(seg.max <= seg.min) return seg.x0 + seg.w/2;
+    return seg.x0 + PAD + (tPos(c)-seg.min)/(seg.max-seg.min)*(seg.w-2*PAD);
+  }
+  dated.forEach(p=>{ p.wx = worldXOf(p.c); });
+
+  const view = {scale:1, left:0};
+  let cssW = 0;
+  function fitScale(){ return (cssW || box.clientWidth || 900) / WORLD_W; }
+  view.scale = fitScale(); view.left = 0;
+
+  let dirty = true, clusters = [], hoverCluster = null;
+  let dragging = false, dragMoved = 0, lastX = 0;
+
+  function clampView(){
+    const fs = fitScale();
+    if(view.scale < fs) view.scale = fs;
+    if(view.scale > MAX_SCALE) view.scale = MAX_SCALE;
+    if(view.scale <= fs*1.0001){ view.left = 0; return; }
+    const maxLeft = Math.max(WORLD_W - cssW/view.scale, 0);
+    view.left = Math.max(-40, Math.min(maxLeft + 40, view.left));
+  }
+  function zoomAt(cx, f){
+    const wx0 = cx/view.scale + view.left;
+    view.scale *= f;
+    clampView();
+    view.left = wx0 - cx/view.scale;
+    clampView();
+    dirty = true;
+  }
+  function sizeCanvas(){
+    const w = box.clientWidth || 900;
+    if(w !== cssW){
+      cssW = w;
+      canvas.width = Math.round(w*dpr);
+      canvas.height = Math.round(CH*dpr);
+      canvas.style.height = CH+'px';
+      clampView();
+    }
+  }
+  function niceStep(raw){
+    const p = Math.pow(10, Math.floor(Math.log10(Math.max(raw, 1e-9))));
+    for(const k of [1,2,5,10]){ if(k*p >= raw) return k*p; }
+    return 10*p;
+  }
+  function tickLabel(t, era){
+    t = Math.round(t);
+    if(era!=='公元') return String(t);
+    return t<0 ? '前'+(-t) : String(t);
+  }
+
+  function draw(){
+    sizeCanvas();
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,cssW,CH);
+    ctx.font = '11px sans-serif';
+    clusters = [];
+    const s = view.scale;
+    const toS = wx => (wx - view.left)*s;
+
+    for(const seg of eras){
+      const x0 = toS(seg.x0), x1 = toS(seg.x1);
+      ctx.fillStyle = '#faf9f5';
+      ctx.fillRect(x0, 24, x1-x0, CH-24);
+      /* 纪元名：优先画在段中心，放大后段中心出视野时贴到可见边缘 */
+      let nameX = (x0+x1)/2;
+      const nameW = Math.max(ctx.measureText(eraDisplayName(seg.era)).width, 60);
+      if(x1 - x0 > nameW + 8){
+        if(nameX < 0 && x1 > 0) nameX = Math.min(x1 - nameW/2 - 4, 6 + nameW/2);
+        else if(nameX > cssW && x0 < cssW) nameX = Math.max(x0 + nameW/2 + 4, cssW - 6 - nameW/2);
+      }
+      ctx.fillStyle = '#5f5e5a';
+      ctx.textAlign = 'center';
+      if(nameX > -nameW && nameX < cssW + nameW) ctx.fillText(eraDisplayName(seg.era), nameX, 15);
+      ctx.strokeStyle = '#d3d1c7';
+      ctx.beginPath(); ctx.moveTo(x1+30, 6); ctx.lineTo(x1+30, CH-6); ctx.stroke();
+      const inner = seg.w - 2*PAD;
+      if(seg.max > seg.min){
+        const step = Math.max(niceStep((seg.max-seg.min)/Math.max(inner,1)*90), 1);
+        const t0 = Math.ceil((seg.min-1e-9)/step)*step;
+        for(let i=0;i<200;i++){
+          const t = t0 + i*step;
+          if(t > seg.max + 1e-9) break;
+          if(seg.era==='公元' && Math.abs(t) < 1e-9) continue;
+          const sx = toS(seg.x0 + PAD + (t-seg.min)/(seg.max-seg.min)*inner);
+          if(sx < -40 || sx > cssW+40) continue;
+          ctx.strokeStyle = '#d3d1c7';
+          ctx.beginPath(); ctx.moveTo(sx, AXIS_Y); ctx.lineTo(sx, AXIS_Y+6); ctx.stroke();
+          ctx.fillStyle = '#888780';
+          ctx.fillText(tickLabel(t, seg.era), sx, AXIS_Y+18);
+        }
+        if(seg.era==='公元' && seg.min<0 && seg.max>0){
+          const zx = toS(seg.x0 + PAD + (0-seg.min)/(seg.max-seg.min)*inner);
+          ctx.strokeStyle = '#534AB7';
+          ctx.beginPath(); ctx.moveTo(zx, 30); ctx.lineTo(zx, AXIS_Y); ctx.stroke();
+          ctx.fillStyle = '#534AB7';
+          ctx.fillText('公元元年', zx, 42);
+        }
+      }
+    }
+
+    ctx.strokeStyle = '#534AB7'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(0, AXIS_Y); ctx.lineTo(cssW, AXIS_Y); ctx.stroke();
+    ctx.lineWidth = 1;
+
+    const vis = dated
+      .map(p=>[toS(p.wx), p])
+      .filter(a=>a[0]>=-20 && a[0]<=cssW+20)
+      .sort((a,b)=>a[0]-b[0]);
+    let cur = null;
+    for(const a of vis){
+      if(cur && a[0]-cur.sx <= 12){ cur.items.push(a[1]); }
+      else { cur = {sx:a[0], items:[a[1]]}; clusters.push(cur); }
+    }
+    let labelRight = -1e9;
+    for(const c of clusters){
+      c.dots = [];
+      const n = c.items.length;
+      const shown = Math.min(n, 5);
+      for(let i=0;i<shown;i++){
+        const p = c.items[i];
+        const tp = TYPES[p.e.type] || TYPES.lore;
+        const y = AXIS_Y - 13 - i*14;
+        ctx.beginPath(); ctx.arc(c.sx, y, 4.5, 0, Math.PI*2);
+        ctx.fillStyle = tp.fill; ctx.fill();
+        ctx.strokeStyle = tp.color; ctx.lineWidth = 1.4; ctx.stroke();
+        ctx.lineWidth = 1;
+        c.dots.push({y});
+      }
+      if(n > shown){
+        ctx.fillStyle = '#534AB7'; ctx.textAlign = 'left';
+        ctx.fillText('+'+(n-shown), c.sx + 7, AXIS_Y - 13 - (shown-1)*14 + 4);
+      }
+      const top = c.items[0];
+      const nm = top.e.name.length>12 ? top.e.name.slice(0,12)+'…' : top.e.name;
+      const full = nm + (n>1 ? ' 等'+n+'条' : '');
+      if(c.sx + 8 > labelRight + 10){
+        let tx = c.sx + 8;
+        ctx.textAlign = 'left';
+        if(tx + ctx.measureText(full).width > cssW - 4){ ctx.textAlign = 'right'; tx = c.sx - 8; }
+        ctx.fillStyle = '#2c2c2a';
+        ctx.fillText(full, tx, AXIS_Y - 13 - (shown-1)*14 + 4);
+        labelRight = c.sx + 8 + ctx.measureText(full).width;
+      }
+    }
+  }
+
+  function clusterAt(mx, my){
+    for(const c of clusters){
+      for(const d of c.dots){
+        if((mx-c.sx)*(mx-c.sx) + (my-d.y)*(my-d.y) <= 64) return c;
+      }
+    }
+    return null;
+  }
+  function showTip(c, mx, my){
+    tip.innerHTML = c.items.map(p=>{
+      const tp = TYPES[p.e.type] || TYPES.lore;
+      const txt = String(p.e.content||'').replace(/\s+/g,'');
+      return '<div style="margin-bottom:5px;"><a class="lk" data-id="'+esc(p.e.id)+'">'+esc(p.e.name)+'</a> ' +
+        '<span style="color:'+tp.color+';font-size:11px;">'+tp.label+'</span>' +
+        '<div style="color:var(--tx3);font-size:11px;">'+esc(p.e.year)+(txt?' · '+esc(txt.slice(0,60))+(txt.length>60?'…':''):'')+'</div></div>';
+    }).join('');
+    tip.style.display = 'block';
+    let tx = mx + 14, ty = my - 12;
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    if(tx + tw > cssW - 6) tx = mx - tw - 14;
+    if(tx < 6) tx = 6;
+    if(ty + th > CH - 6) ty = CH - th - 6;
+    if(ty < 6) ty = 6;
+    tip.style.left = tx+'px'; tip.style.top = ty+'px';
+  }
+  function hideTip(){ tip.style.display='none'; hoverCluster = null; }
+
+  app.querySelector('#tlFit').onclick = ()=>{ view.scale = fitScale(); clampView(); dirty = true; };
+  app.querySelector('#tlPlus').onclick = ()=>zoomAt((cssW||400)/2, 1.4);
+  app.querySelector('#tlMinus').onclick = ()=>zoomAt((cssW||400)/2, 1/1.4);
+
+  canvas.addEventListener('mousedown', ev=>{
+    dragging = true; dragMoved = 0; lastX = ev.clientX;
+    canvas.style.cursor = 'grabbing';
+    hideTip();
+  });
+  canvas.addEventListener('mousemove', ev=>{
+    const r = canvas.getBoundingClientRect();
+    const mx = ev.clientX - r.left, my = ev.clientY - r.top;
+    if(dragging){
+      const dx = ev.clientX - lastX;
+      dragMoved += Math.abs(dx); lastX = ev.clientX;
+      view.left -= dx/view.scale;
+      clampView(); dirty = true;
+      return;
+    }
+    const c = clusterAt(mx, my);
+    if(c){ showTip(c, mx, my); }
+    else if(hoverCluster){ hideTip(); }
+    canvas.style.cursor = c ? 'pointer' : 'grab';
+  });
+  canvas.addEventListener('mouseup', ev=>{
+    if(dragging && dragMoved < 5){
+      const r = canvas.getBoundingClientRect();
+      const mx = ev.clientX - r.left, my = ev.clientY - r.top;
+      const c = clusterAt(mx, my);
+      if(c){
+        ui.tab='entries'; ui.openId=c.items[0].e.id; ui.editing=undefined;
+        render(); return;
+      }
+    }
+    dragging = false; canvas.style.cursor = 'grab';
+  });
+  canvas.addEventListener('mouseleave', ()=>{ dragging = false; canvas.style.cursor = 'grab'; });
+  box.addEventListener('mouseleave', ()=>hideTip());
+  box.addEventListener('wheel', ev=>{
+    ev.preventDefault();
+    const r = canvas.getBoundingClientRect();
+    zoomAt(ev.clientX - r.left, ev.deltaY < 0 ? 1.18 : 1/1.18);
+  }, {passive:false});
+
+  function loop(){
+    if(dirty || box.clientWidth !== cssW){ dirty = false; draw(); }
+    tlRAF = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function renderData(){
+  app.innerHTML = '<main class="tl-page"><div class="page-hd"><h2>数据</h2>' +
+    '<span class="sub">数据是磁盘上的真实文件：每个 .md 是一个词条，所在文件夹决定类型。可以用记事本、VS Code 直接改，改完点「重新读取」。</span></div>' +
+    '<div class="sec"><h3>当前连接</h3><p>'+esc(state.rootName)+' · '+state.entries.length+' 个词条'+(SERVER_MODE?' · 服务模式运行中':'')+'</p>' +
+    '<div class="ops-row"><button class="btn subtle sm" id="btnReload">重新读取</button>' +
+      (SERVER_MODE?'':'<button class="btn ghost sm" id="btnReconnect">更换文件夹</button>')+'</div></div>' +
+    '<div class="sec"><h3>词条模板</h3><p>新建词条时预填哪些字段由模板决定，每种类型可以有多个模板。保存在 <code>data/.templates.json</code>，只影响新建，已有词条不受影响。</p>' +
+    '<div class="ops-row"><button class="btn primary sm" id="btnTplMgr">管理模板</button></div></div>' +
+    '<div class="sec"><h3>备份</h3><p>导出为 JSON 快照。也可以导入旧版藏经阁（浏览器存储版）的 JSON 备份，导入的词条会写成 .md 文件。</p>' +
+    '<div class="ops-row"><button class="btn primary sm" id="btnExport">导出备份（JSON）</button>' +
+    '<button class="btn sm" id="btnImport">导入备份</button><input type="file" id="fileIn" accept=".json,application/json" style="display:none;"></div></div>' +
+    '<div class="sec"><h3>回收站</h3><p>删除的词条会先放进 <code>data/.trash</code>，按类型分文件夹保存，随时可恢复。彻底清除后不可找回。</p>' +
+    '<div id="trashList"><div class="trash-empty">读取中…</div></div>' +
+    '<div class="ops-row"><span class="spacer"></span><button class="btn danger sm" id="btnEmptyTrash">清空回收站</button></div></div>' +
+    '<div class="sec"><h3>操作日志</h3><p>记录每次新建、保存、删除、恢复，最新在最上面。保存在 <code>data/.history.log</code>，记事本可直接打开。</p>' +
+    '<div class="logbox" id="logBox">读取中…</div></div>' +
+    '<div class="sec danger-zone"><h3>危险区</h3><p>清空会把全部词条移入回收站（不是直接删除，还能恢复）。建议先导出备份。</p>' +
+    '<div class="ops-row"><button class="btn danger sm" id="btnClear">清空全部词条</button></div></div>' +
+    '</main>';
+  app.querySelector('#btnReload').onclick = ()=>refresh();
+
+  /* ---- 回收站 ---- */
+  async function renderTrash(){
+    const box = app.querySelector('#trashList');
+    if(!box) return;
+    const items = await trashList();
+    if(!items.length){ box.innerHTML = '<div class="trash-empty">回收站是空的</div>'; return; }
+    box.innerHTML = items.map((it,i)=>{
+      const tp = TYPES[it.type] || TYPES.lore;
+      return '<div class="trash-row">' +
+        '<span class="badge" style="background:'+tp.fill+';color:'+tp.color+'">'+tp.label+'</span>' +
+        '<span class="tr-name">'+esc(it.name)+'</span>' +
+        '<span class="tr-time">'+esc(it.deletedAt||'')+'</span>' +
+        '<span class="tr-ops"><button class="btn sm subtle" data-act="restore" data-i="'+i+'">恢复</button>' +
+        '<button class="btn sm ghost danger" data-act="purge" data-i="'+i+'">彻底删除</button></span></div>';
+    }).join('');
+    box.querySelectorAll('button[data-act]').forEach(b=>{
+      b.onclick = async ()=>{
+        const it = items[+b.dataset.i];
+        if(b.dataset.act === 'restore'){
+          await trashRestore(it);
+          await refresh();
+          renderTrash(); renderLog();
+        }else{
+          if(!confirm('彻底删除「'+it.name+'」？此操作不可恢复。')) return;
+          await trashPurge(it);
+          renderTrash(); renderLog();
+        }
+      };
+    });
+  }
+  /* ---- 操作日志 ---- */
+  async function renderLog(){
+    const box = app.querySelector('#logBox');
+    if(!box) return;
+    const lines = await historyLines();
+    box.innerHTML = lines.length
+      ? lines.map(l=>'<div class="log-line">'+esc(l)+'</div>').join('')
+      : '<div class="log-empty">暂无记录</div>';
+  }
+  const bt = app.querySelector('#btnTplMgr');
+  if(bt) bt.onclick = ()=>openTemplateManager();
+  const be = app.querySelector('#btnEmptyTrash');
+  if(be) be.onclick = async ()=>{
+    const items = await trashList();
+    if(!items.length) return;
+    if(!confirm('清空回收站？'+items.length+' 个词条将被永久删除，不可恢复。')) return;
+    await trashEmpty();
+    await refresh();
+    renderTrash(); renderLog();
+  };
+  renderTrash();
+  renderLog();
+
+  const rc = app.querySelector('#btnReconnect');
+  if(rc) rc.onclick = ()=>connect();
+  app.querySelector('#btnExport').onclick = ()=>{
+    const blob = new Blob([JSON.stringify({entries:state.entries},null,2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = '藏经阁-备份-' + new Date().toISOString().slice(0,10) + '.json';
+    a.click(); URL.revokeObjectURL(a.href);
+  };
+  app.querySelector('#btnImport').onclick = ()=>app.querySelector('#fileIn').click();
+  app.querySelector('#fileIn').onchange = async (ev)=>{
+    const f = ev.target.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = async ()=>{
+      try{
+        const d = JSON.parse(r.result);
+        if(!Array.isArray(d.entries)) throw 0;
+        if(!confirm('将把备份里的 '+d.entries.length+' 个词条写成 .md 文件（同名文件会被覆盖）。继续？')) return;
+        let ok = 0;
+        for(const it of d.entries){
+          if(!it || !it.name) continue;
+          const type = TYPES[it.type] ? it.type : 'lore';
+          try{
+            await writeEntry({ name:safeName(it.name), type, aliases:(it.aliases||[]).filter(Boolean), year:it.year||'', fields:(it.fields||[]).filter(f=>f.label), content:it.content||'' });
+            ok++;
+          }catch(e){}
+        }
+        alert('已写入 '+ok+' 个词条文件');
+        await refresh();
+      }catch(e){ alert('文件格式不对，导入失败'); }
+    };
+    r.readAsText(f,'utf-8');
+  };
+  app.querySelector('#btnClear').onclick = async ()=>{
+    if(!confirm('把全部 '+state.entries.length+' 个词条移入回收站？可在上方「回收站」逐个恢复。建议先导出备份。')) return;
+    for(const e of state.entries){ await removeEntryFile(e.type, e.name); }
+    ui.openId = null; ui.editing = undefined;
+    await refresh();
+  };
+}
+
+/* ============ 关系图 ============ */
+let graphRAF = null;
+function stopGraph(){ if(graphRAF){ cancelAnimationFrame(graphRAF); graphRAF = null; } }
+let tlRAF = null;
+function stopTimeline(){ if(tlRAF){ cancelAnimationFrame(tlRAF); tlRAF = null; } }
+
+/* ============ 家族树 ============ */
+let famCleanup = [];
+function stopFamily(){
+  famCleanup.forEach(fn=>{ try{ fn(); }catch(e){} });
+  famCleanup = [];
+}
+function buildFamilyTree(){
+  const people = state.entries.filter(e => e.type === 'role');
+  const byName = {};
+  for(const e of people){
+    byName[e.name] = e;
+    for(const a of namesOf(e)) byName[a] = e;
+  }
+  const parentOf = {}, childrenOf = {};
+  for(const e of people){
+    const f = (e.fields||[]).find(x => x.label === '父母');
+    if(!f || !f.value) continue;
+    for(const nm of String(f.value).split(/[,，、]/).map(s=>s.trim()).filter(Boolean)){
+      const p = byName[nm];
+      if(!p || p.id === e.id) continue;
+      if((parentOf[e.id]||[]).indexOf(p.id) >= 0) continue;
+      (parentOf[e.id] = parentOf[e.id]||[]).push(p.id);
+      (childrenOf[p.id] = childrenOf[p.id]||[]).push(e.id);
+    }
+  }
+  /* 配偶推断：共同孩子的父母互为配偶，用并查集把一家人归到一组 */
+  const par = {};
+  function find(x){ return par[x] = par[x] || x, par[x] === x ? x : (par[x] = find(par[x])); }
+  function unite(a, b){ const ra = find(a), rb = find(b); if(ra !== rb) par[ra] = rb; }
+  for(const cid in parentOf){
+    const ps = parentOf[cid];
+    for(let i=1;i<ps.length;i++) unite(ps[0], ps[i]);
+  }
+  const groups = {};
+  for(const e of people){ const r = find(e.id); (groups[r] = groups[r] || []).push(e.id); }
+  return {people, parentOf, childrenOf, groups};
+}
+/* 以「配偶组」为最小单元布局；组内横向排列（用配偶连线连起来），孩子挂在组下方 */
+function layoutForest(groups, childrenOf){
+  const NODE_W = 144, SPOUSE_GAP = 32, GAP_X = 24, LEVEL_H = 112;
+  function unitOf(id){
+    for(const k in groups){ if(groups[k].indexOf(id) >= 0) return groups[k].slice(); }
+    return [id];
+  }
+  function unitKey(u){ return u.slice().sort().join('|'); }
+  function unitWidth(u){ return u.length * NODE_W + (u.length - 1) * SPOUSE_GAP; }
+  function unitChildren(u){
+    const out = [], seen = {};
+    for(const id of u){
+      for(const k of (childrenOf[id]||[])){
+        const ku = unitKey(unitOf(k));
+        if(seen[ku]) continue;
+        seen[ku] = 1;
+        out.push(k);
+      }
+    }
+    return out;
+  }
+  const wcache = {}, busy = {};
+  function measureUnit(u){
+    const k = unitKey(u);
+    if(wcache[k]) return wcache[k];
+    if(busy[k]) return unitWidth(u) + GAP_X;
+    busy[k] = 1;
+    let kidsW = 0;
+    for(const c of unitChildren(u)) kidsW += measureUnit(unitOf(c));
+    wcache[k] = Math.max(unitWidth(u) + GAP_X, kidsW);
+    delete busy[k];
+    return wcache[k];
+  }
+  const out = [], seenUnits = {}, spouseEdges = [], childEdges = [], unitKeyById = {};
+  function placeUnit(u, depth, left){
+    if(depth > 8) return;
+    const k = unitKey(u);
+    if(seenUnits[k]) return;
+    seenUnits[k] = 1;
+    const w = measureUnit(u);
+    const uw = unitWidth(u);
+    const x0 = left + (w - uw) / 2;
+    for(let i=0;i<u.length;i++){
+      const id = u[i];
+      out.push({id:id, depth:depth,
+                cx:x0 + i*(NODE_W+SPOUSE_GAP) + NODE_W/2,
+                cy:36 + depth*LEVEL_H,
+                dup:false});
+      unitKeyById[id] = k;
+      if(i > 0) spouseEdges.push({y:36 + depth*LEVEL_H, x1:x0 + (i-1)*(NODE_W+SPOUSE_GAP) + NODE_W, x2:x0 + i*(NODE_W+SPOUSE_GAP) - NODE_W/2});
+    }
+    let x = left;
+    for(const c of unitChildren(u)){
+      const cu = unitOf(c);
+      childEdges.push({pkey:k, ckey:unitKey(cu)});
+      placeUnit(cu, depth+1, x);
+      x += measureUnit(cu);
+    }
+  }
+  /* 根单元：成员都无父母的单元 */
+  const hasParent = {};
+  for(const id in childrenOf){ for(const k of childrenOf[id]) hasParent[k] = 1; }
+  const rootList = [];
+  const doneRoots = {};
+  for(const k in groups){
+    if(groups[k].some(id => hasParent[id])) continue;
+    if(doneRoots[k]) continue;
+    rootList.push(groups[k]);
+    doneRoots[k] = 1;
+  }
+  if(!rootList.length && groups[Object.keys(groups)[0]]) rootList.push(groups[Object.keys(groups)[0]]);
+  let left = 0;
+  for(const r of rootList){ const w = measureUnit(r); placeUnit(r, 0, left); left += w + 44; }
+  let maxD = 0;
+  for(const n of out) if(n.depth > maxD) maxD = n.depth;
+  return {nodes:out, spouseEdges:spouseEdges, childEdges:childEdges,
+          unitKeyById:unitKeyById, width:Math.max(left - 44, 300), height:80 + maxD*LEVEL_H};
+}
+function shortInfo(e){
+  const f = (e.fields||[]).find(x => x.value);
+  return f ? String(f.value).slice(0,14) : (e.year || '');
+}
+function renderFamily(){
+  stopFamily();
+  const tree = buildFamilyTree();
+  const roots = tree.people.filter(e => (tree.childrenOf[e.id]||[]).length && !(tree.parentOf[e.id]||[]).length).map(e=>e.id);
+  const rootList = roots.length ? roots : tree.people.filter(e => (tree.childrenOf[e.id]||[]).length).map(e=>e.id);
+
+  app.innerHTML = '<main class="tl-page">' +
+    '<div class="page-hd"><h2>家族</h2><span class="sub">由人物词条的「父母」字段自动生成</span></div>' +
+    '<div class="toolbar">' +
+      '<div class="seg">' +
+        '<button class="btn" id="famFit">全览</button>' +
+        '<button class="btn icon" id="famMinus" title="缩小">−</button>' +
+        '<button class="btn icon" id="famPlus" title="放大">＋</button>' +
+      '</div>' +
+      '<span class="hint">滚轮缩放 · 拖拽平移 · 点击节点打开词条</span>' +
+      '<span class="spacer"></span>' +
+      '<span class="hint">'+rootList.length+' 个家族 · '+Object.keys(tree.parentOf).length+' 条亲子关系</span>' +
+    '</div>' +
+    '<div id="famBox"><svg id="famSvg"></svg></div></main>';
+
+  const box = app.querySelector('#famBox');
+  if(!rootList.length){
+    box.innerHTML = '<div class="empty"><h3>还没有家族关系</h3>' +
+      '<p>给人物词条填上「父母」字段，值写已有人物的名字（多个用逗号分隔），家族树会自动画出来。<br>人物的默认模板里已经有这个字段。</p></div>';
+    return;
+  }
+  const layout = layoutForest(tree.groups, tree.childrenOf);
+  const svg = app.querySelector('#famSvg');
+  const W = box.clientWidth || 900;
+  const H = Math.max(420, Math.min(720, layout.height));
+  svg.setAttribute('width', W);
+  svg.setAttribute('height', H);
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+
+  let html = '<g id="famG">';
+  /* 配偶连线（横线） */
+  for(const s of layout.spouseEdges){
+    html += '<line class="fam-spouse" x1="'+s.x1.toFixed(1)+'" y1="'+s.y.toFixed(1)+'" x2="'+s.x2.toFixed(1)+'" y2="'+s.y.toFixed(1)+'"/>';
+  }
+  const nodesByKey = {};
+  for(const n of layout.nodes){ (nodesByKey[layout.unitKeyById[n.id]] = nodesByKey[layout.unitKeyById[n.id]] || []).push(n); }
+  /* 亲子连线：按单元去重后的边画 */
+  for(const e of layout.childEdges){
+    const pNodes = nodesByKey[e.pkey], cNodes = nodesByKey[e.ckey];
+    if(!pNodes || !cNodes || !cNodes.length) continue;
+    const px = pNodes.length > 1 ? (pNodes[0].cx + pNodes[pNodes.length-1].cx)/2 : pNodes[0].cx;
+    const cx = cNodes.length > 1 ? (cNodes[0].cx + cNodes[cNodes.length-1].cx)/2 : cNodes[0].cx;
+    const y1 = pNodes[0].cy + 22, y2 = cNodes[0].cy - 22, my = (y1 + y2) / 2;
+    html += '<path class="fam-link" d="M'+px.toFixed(1)+' '+y1+' V'+my.toFixed(1)+' H'+cx.toFixed(1)+' V'+y2+'"/>';
+  }
+  for(const n of layout.nodes){
+    const e = entryById(n.id);
+    if(!e) continue;
+    const tp = TYPES[e.type] || TYPES.lore;
+    const nm = e.name.length > 7 ? e.name.slice(0,7) + '…' : e.name;
+    html += '<g class="fam-node'+(n.dup?' dup':'')+'" data-id="'+esc(n.id)+'" transform="translate('+(n.cx-72)+','+(n.cy-26)+')">' +
+      '<rect width="144" height="52" rx="12" fill="'+tp.fill+'" stroke="'+tp.color+'"'+(n.dup?' stroke-dasharray="4 3"':'')+'/>' +
+      '<text class="fam-nm" x="72" y="22">'+esc(nm)+'</text>' +
+      '<text class="fam-sub" x="72" y="39">'+esc(shortInfo(e))+'</text></g>';
+  }
+  html += '</g>';
+  svg.innerHTML = html;
+
+  const g = svg.querySelector('#famG');
+  let k = 1, tx = 0, ty = 0;
+  function apply(){ g.setAttribute('transform', 'translate('+tx.toFixed(1)+','+ty.toFixed(1)+') scale('+k.toFixed(3)+')'); }
+  function fit(){
+    k = Math.max(0.25, Math.min(1, Math.min(W / layout.width, H / layout.height) * 0.92));
+    tx = (W - layout.width * k) / 2;
+    ty = 8;
+    apply();
+  }
+  function zoomAt(mx, my, f){
+    const nk = Math.max(0.2, Math.min(3, k * f));
+    tx = mx - (mx - tx) * (nk / k);
+    ty = my - (my - ty) * (nk / k);
+    k = nk;
+    apply();
+  }
+  fit();
+  app.querySelector('#famFit').onclick = fit;
+  app.querySelector('#famMinus').onclick = ()=>zoomAt(W/2, H/2, 1/1.25);
+  app.querySelector('#famPlus').onclick = ()=>zoomAt(W/2, H/2, 1.25);
+
+  svg.addEventListener('wheel', ev=>{
+    ev.preventDefault();
+    const r = svg.getBoundingClientRect();
+    zoomAt(ev.clientX - r.left, ev.clientY - r.top, ev.deltaY < 0 ? 1.15 : 1/1.15);
+  }, {passive:false});
+
+  let drag = false, lx = 0, ly = 0;
+  svg.addEventListener('mousedown', ev=>{ drag = true; lx = ev.clientX; ly = ev.clientY; });
+  const onMove = ev=>{
+    if(!drag) return;
+    tx += ev.clientX - lx; ty += ev.clientY - ly;
+    lx = ev.clientX; ly = ev.clientY; apply();
+  };
+  const onUp = ()=>{ drag = false; };
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+  famCleanup.push(()=>{
+    window.removeEventListener('mousemove', onMove);
+    window.removeEventListener('mouseup', onUp);
+  });
+
+  svg.querySelectorAll('.fam-node').forEach(nd=>{
+    nd.onclick = ()=>{
+      ui.tab = 'entries'; ui.openId = nd.dataset.id; ui.editing = undefined;
+      render();
+    };
+  });
+}
+
+/* ============ 地图 ============ */
+async function mapFiles(){
+  if(SERVER_MODE){
+    try{ const r = await fetch('/api/mapfiles'); return ((await r.json()).files) || []; }
+    catch(e){ return []; }
+  }
+  const dh = await getDir('地图', false);
+  if(!dh) return [];
+  return (await fsaListFiles(dh)).filter(f=>/\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(f)).sort();
+}
+async function mapsLoad(){
+  if(SERVER_MODE){
+    try{ const r = await fetch('/api/maps'); return ((await r.json()).maps) || []; }
+    catch(e){ return []; }
+  }
+  const t = await fsaRead(state.root, '.maps.json');
+  if(t === null) return [];
+  try{ return JSON.parse(t).maps || []; }catch(e){ return []; }
+}
+async function mapsSave(list){
+  if(SERVER_MODE){ await post('/api/maps', {maps:list}); return; }
+  await fsaWrite(state.root, '.maps.json', JSON.stringify({maps:list}, null, 2));
+}
+async function mapImgUrl(file){
+  if(SERVER_MODE) return '/api/file?p=' + encodeURIComponent('地图/' + file);
+  const dh = await getDir('地图', false);
+  if(!dh) return '';
+  try{ return URL.createObjectURL(await (await dh.getFileHandle(file)).getFile()); }
+  catch(e){ return ''; }
+}
+function shortEntryName(id){
+  const e = entryById(id);
+  return e ? e.name : String(id || '').split('/').pop();
+}
+/* 标记模式下选一个词条 */
+function pickEntryForPin(){
+  return new Promise(resolve=>{
+    const list = state.entries.slice().sort((a,b)=>a.name.localeCompare(b.name, 'zh'));
+    const mask = document.createElement('div');
+    mask.className = 'mask';
+    mask.innerHTML = '<div class="modal">' +
+      '<div class="modal-hd"><h3>标记哪个词条</h3><span class="msub">点图上位置后选择</span>' +
+      '<button class="modal-x" id="pX">×</button></div>' +
+      '<div class="modal-bd">' +
+      '<input type="text" id="pQ" class="pick-q" placeholder="搜索词条名…">' +
+      '<div id="pList" class="pick-list"></div></div>' +
+      '<div class="modal-ft"><span class="spacer"></span><button class="btn ghost" id="pCancel">取消</button></div></div>';
+    document.body.appendChild(mask);
+    function close(){ mask.remove(); document.removeEventListener('keydown', onKey); }
+    function onKey(ev){ if(ev.key === 'Escape'){ close(); resolve(null); } }
+    document.addEventListener('keydown', onKey);
+    function fill(){
+      const q = mask.querySelector('#pQ').value.trim().toLowerCase();
+      const arr = list.filter(e=>!q || namesOf(e).join(' ').toLowerCase().indexOf(q) >= 0);
+      mask.querySelector('#pList').innerHTML = arr.length
+        ? arr.map(e=>{
+            const tp = TYPES[e.type] || TYPES.lore;
+            return '<div class="pick-row" data-id="'+esc(e.id)+'">' +
+              '<span class="dot" style="background:'+tp.color+'"></span>'+esc(e.name)+
+              '<span class="pt">'+tp.label+'</span></div>';
+          }).join('')
+        : '<div class="era-empty">没有匹配的词条</div>';
+      mask.querySelectorAll('.pick-row').forEach(r=>{
+        r.onclick = ()=>{ close(); resolve(r.dataset.id); };
+      });
+    }
+    mask.querySelector('#pQ').oninput = fill;
+    mask.querySelector('#pX').onclick = ()=>{ close(); resolve(null); };
+    mask.querySelector('#pCancel').onclick = ()=>{ close(); resolve(null); };
+    mask.onclick = ev=>{ if(ev.target === mask){ close(); resolve(null); } };
+    fill();
+    mask.querySelector('#pQ').focus();
+  });
+}
+function renderMaps(){
+  app.innerHTML = '<main class="tl-page">' +
+    '<div class="page-hd"><h2>地图</h2><span class="sub">把图片放进 data/地图/，在图上打点关联词条</span></div>' +
+    '<div class="toolbar">' +
+      '<select id="mapSel"></select>' +
+      '<button class="btn subtle sm" id="mapEdit">标记模式：关</button>' +
+      '<span class="spacer"></span>' +
+      '<button class="btn sm" id="mapAdd">＋ 添加地图</button>' +
+      '<button class="btn ghost sm danger" id="mapDel">删除此地图</button>' +
+    '</div>' +
+    '<div id="mapBox"><div class="era-empty">加载中…</div></div></main>';
+
+  const sel = app.querySelector('#mapSel');
+  const box = app.querySelector('#mapBox');
+  let maps = [], cur = ui.mapId || null, editing = false;
+
+  function showEmpty(){
+    sel.innerHTML = '<option>（无地图）</option>';
+    box.innerHTML = '<div class="empty"><h3>还没有地图</h3>' +
+      '<p>把一张图片（PNG / JPG）放进 <code>data/地图/</code> 文件夹，再点上面「＋ 添加地图」。<br>' +
+      '之后就能在图上打点，把城市、宗门、地点词条标上去。</p></div>';
+  }
+  async function render(){
+    const m = maps.find(x=>x.id === cur);
+    if(!m){ showEmpty(); return; }
+    sel.innerHTML = maps.map(x=>'<option value="'+esc(x.id)+'"'+(x.id===cur?' selected':'')+'>'+esc(x.name)+'</option>').join('');
+    const url = await mapImgUrl(m.file);
+    if(!url){
+      box.innerHTML = '<div class="empty"><h3>图片读不到</h3><p>找不到 <code>data/地图/'+esc(m.file)+'</code>，确认文件还在。</p></div>';
+      return;
+    }
+    box.innerHTML = '<div class="map-wrap'+(editing?' editing':'')+'">' +
+      '<img class="map-img" id="mapImg" src="'+esc(url)+'" alt="'+esc(m.name)+'">' +
+      '<div class="map-pins">' + (m.pins||[]).map((p,i)=>
+        '<div class="map-pin" style="left:'+(p.x*100).toFixed(3)+'%;top:'+(p.y*100).toFixed(3)+'%">' +
+        '<span class="pin-dot"></span><span class="pin-lb" data-i="'+i+'">'+esc(shortEntryName(p.entry))+'</span></div>').join('') +
+      '</div></div>' +
+      '<p class="map-tip">'+(editing
+        ? '标记模式已开启：在图上任意位置点击，然后选择要关联的词条。'
+        : '点标记上的名字可打开词条 · 当前地图 '+(m.pins||[]).length+' 个标记')+'</p>';
+    ui.mapId = cur;
+    box.querySelectorAll('.pin-lb').forEach(el=>{
+      el.onclick = ev=>{
+        ev.stopPropagation();
+        const p = (maps.find(x=>x.id===cur).pins||[])[+el.dataset.i];
+        if(p && p.entry){ ui.tab='entries'; ui.openId=p.entry; ui.editing=undefined; render(); }
+      };
+    });
+    if(editing){
+      const img = box.querySelector('#mapImg');
+      img.onclick = async ev=>{
+        const r = img.getBoundingClientRect();
+        const x = (ev.clientX - r.left) / r.width, y = (ev.clientY - r.top) / r.height;
+        const id = await pickEntryForPin();
+        if(!id) return;
+        const m2 = maps.find(x=>x.id === cur);
+        m2.pins = m2.pins || [];
+        m2.pins.push({x:Math.max(0, Math.min(1, x)), y:Math.max(0, Math.min(1, y)), entry:id});
+        await mapsSave(maps);
+        render();
+      };
+    }
+  }
+
+  sel.onchange = ev=>{ cur = ev.target.value; render(); };
+  app.querySelector('#mapEdit').onclick = ev=>{
+    editing = !editing;
+    ev.target.textContent = '标记模式：' + (editing ? '开' : '关');
+    ev.target.classList.toggle('primary', editing);
+    render();
+  };
+  app.querySelector('#mapAdd').onclick = async ()=>{
+    const files = await mapFiles();
+    if(!files.length){
+      alert('先把图片放进 data/地图/ 文件夹（PNG / JPG 都行），再点「＋ 添加地图」。');
+      return;
+    }
+    const avail = files.filter(f=>!maps.some(m=>m.file === f));
+    if(!avail.length){ alert('data/地图/ 里的图片都已添加过了。'); return; }
+    const fn = avail[0];
+    const name = prompt('给这张地图起个名字：', fn.replace(/\.[^.]+$/, ''));
+    if(!name) return;
+    const nm = {id:'map_' + Date.now().toString(36), name:name.trim(), file:fn, pins:[]};
+    maps.push(nm);
+    cur = nm.id;
+    await mapsSave(maps);
+    render();
+    if(avail.length > 1) alert('已添加「'+fn+'」。data/地图/ 里还有 '+(avail.length-1)+' 张图，可继续添加。');
+  };
+  app.querySelector('#mapDel').onclick = async ()=>{
+    const m = maps.find(x=>x.id === cur);
+    if(!m) return;
+    if(!confirm('删除地图「'+m.name+'」的标记配置？\n（只删标记，图片文件本身不会动）')) return;
+    maps = maps.filter(x=>x.id !== cur);
+    cur = maps.length ? maps[0].id : null;
+    await mapsSave(maps);
+    if(!maps.length){ ui.mapId = null; showEmpty(); } else render();
+  };
+
+  mapsLoad().then(async list=>{
+    maps = list || [];
+    if(!maps.length) showEmpty();
+    else{
+      if(!cur || !maps.some(m=>m.id === cur)) cur = maps[0].id;
+      render();
+    }
+  });
+}
+
+function renderGraph(){
+  app.innerHTML = '<main style="max-width:1100px;"><div id="graphBox"><canvas id="graph"></canvas></div>' +
+    '<p class="ghint">圆点 = 词条（大小代表被关联次数），连线 = 相互提及。点圆点打开词条，可拖拽。颜色：' +
+    Object.values(TYPES).map(t=>'<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:'+t.color+';margin:0 3px 0 10px;"></span>'+t.label).join('') +
+    '</p></main>';
+  const canvas = document.getElementById('graph');
+  const W = 1000, H = 620;
+  canvas.width = W; canvas.height = H;
+
+  /* 节点太多时力导向是 O(n²)，这里按「被关联次数」取最相关的若干条 */
+  const MAX_GRAPH_NODES = 400;
+  const midx = mentionIndex();
+  const degOf = {};
+  for(const e of state.entries) degOf[e.id] = 0;
+  for(const [id, list] of midx) degOf[id] = (degOf[id]||0) + list.length;
+  let pool = state.entries;
+  let truncated = 0;
+  if(pool.length > MAX_GRAPH_NODES){
+    pool = pool.slice().sort((a,b)=>(degOf[b.id]||0)-(degOf[a.id]||0)).slice(0, MAX_GRAPH_NODES);
+    truncated = state.entries.length - pool.length;
+  }
+  const nodes = pool.map(e=>({e, x: W/2 + (Math.random()-0.5)*500, y: H/2 + (Math.random()-0.5)*300, vx:0, vy:0, deg:degOf[e.id]||0}));
+  const byId = {}; nodes.forEach(n=>byId[n.e.id]=n);
+  /* 建边：走倒排索引，不再对全文做 O(n²) 交叉扫描 */
+  const edges = [];
+  const seen = new Set();
+  for(const n of nodes){
+    for(const src of (midx.get(n.e.id) || [])){
+      const m = byId[src.id];
+      if(!m || m === n) continue;
+      const key = [n.e.id, m.e.id].sort().join('|');
+      if(seen.has(key)) continue;
+      seen.add(key);
+      edges.push([n, m]);
+    }
+  }
+
+  const ctx = canvas.getContext('2d');
+  let alpha = 1, frames = 0, settled = false;
+  let dragNode = null, dragMoved = 0, lastMouse = null;
+  /* 拖拽后重新激活模拟（收敛后 rAF 已停，这里负责重启） */
+  function wake(){
+    alpha = Math.max(alpha, 0.28);
+    settled = false;
+    if(!graphRAF) graphRAF = requestAnimationFrame(loop);
+  }
+
+  function step(){
+    for(let i=0;i<nodes.length;i++){
+      const a = nodes[i];
+      for(let j=i+1;j<nodes.length;j++){
+        const b = nodes[j];
+        let dx = a.x-b.x, dy = a.y-b.y;
+        let d2 = dx*dx+dy*dy; if(d2<1) d2=1;
+        const f = 2600/d2 * alpha;
+        const d = Math.sqrt(d2);
+        const fx = dx/d*f, fy = dy/d*f;
+        a.vx += fx; a.vy += fy; b.vx -= fx; b.vy -= fy;
+      }
+    }
+    for(const [a,b] of edges){
+      let dx = b.x-a.x, dy = b.y-a.y;
+      const d = Math.sqrt(dx*dx+dy*dy)||1;
+      const f = (d-110)*0.012*alpha;
+      const fx = dx/d*f, fy = dy/d*f;
+      a.vx += fx; a.vy += fy; b.vx -= fx; b.vy -= fy;
+    }
+    for(const n of nodes){
+      n.vx += (W/2-n.x)*0.002*alpha; n.vy += (H/2-n.y)*0.002*alpha;
+      if(n!==dragNode){ n.x += n.vx; n.y += n.vy; }
+      n.vx *= 0.85; n.vy *= 0.85;
+      n.x = Math.max(40, Math.min(W-40, n.x));
+      n.y = Math.max(40, Math.min(H-40, n.y));
+    }
+    /* 收敛后彻底停下力学计算（O(n²)），只保留绘制，避免长时间空转 */
+    alpha *= 0.985; frames++;
+    if(alpha < 0.02) settled = true;
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.lineWidth = 1;
+    for(const [a,b] of edges){
+      ctx.strokeStyle = 'rgba(83,74,183,0.18)';
+      ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+    }
+    for(const n of nodes){
+      const tp = TYPES[n.e.type]||TYPES.lore;
+      const r = 11 + Math.min(n.deg,8)*1.8;
+      ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI*2);
+      ctx.fillStyle = tp.fill; ctx.fill();
+      ctx.strokeStyle = tp.color; ctx.lineWidth = 1.6; ctx.stroke();
+      ctx.fillStyle = '#2c2c2a';
+      ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(n.e.name.length>10?n.e.name.slice(0,10)+'…':n.e.name, n.x, n.y + r + 14);
+    }
+  }
+
+  function loop(){
+    /* 收敛后彻底停止：不计算、不重绘、也不再占用 requestAnimationFrame，等 wake() 唤醒 */
+    if(alpha > 0.02 || dragNode){
+      step(); draw(); settled = false;
+      graphRAF = requestAnimationFrame(loop);
+    }else if(!settled){
+      draw(); settled = true;
+      graphRAF = requestAnimationFrame(loop);
+    }else{
+      graphRAF = null;
+    }
+  }
+  if(truncated > 0){
+    const hint = app.querySelector('.ghint');
+    if(hint) hint.insertAdjacentHTML('afterend',
+      '<p class="ghint" style="color:#a3540b;">词条较多，这里只画出关联最紧密的 '+
+      MAX_GRAPH_NODES+' 个（另有 '+truncated+' 个未显示）。</p>');
+  }
+  loop();
+
+  function nodeAt(x,y){
+    for(const n of nodes){
+      const r = 11 + Math.min(n.deg,8)*1.8 + 4;
+      if((n.x-x)**2 + (n.y-y)**2 < r*r) return n;
+    }
+    return null;
+  }
+  canvas.addEventListener('mousedown', ev=>{
+    const p = toLocal(ev); dragNode = nodeAt(p.x,p.y); dragMoved = 0; lastMouse = p;
+    if(dragNode) wake();
+    if(dragNode) canvas.style.cursor='grabbing';
+  });
+  canvas.addEventListener('mousemove', ev=>{
+    const p = toLocal(ev);
+    if(dragNode){
+      dragMoved += Math.abs(p.x-lastMouse.x)+Math.abs(p.y-lastMouse.y);
+      dragNode.x = p.x; dragNode.y = p.y; dragNode.vx = 0; dragNode.vy = 0;
+      lastMouse = p;
+    } else {
+      canvas.style.cursor = nodeAt(p.x,p.y) ? 'pointer' : 'grab';
+    }
+  });
+  canvas.addEventListener('mouseup', ev=>{
+    if(dragNode && dragMoved < 5){
+      ui.tab='entries'; ui.openId = dragNode.e.id; ui.editing = undefined;
+      stopGraph(); render(); return;
+    }
+    dragNode = null; canvas.style.cursor='grab';
+  });
+  function toLocal(ev){
+    const r = canvas.getBoundingClientRect();
+    return {x:(ev.clientX-r.left)*W/r.width, y:(ev.clientY-r.top)*H/r.height};
+  }
+}
+
+/* ============ 全局事件 ============ */
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{ ui.tab = b.dataset.tab; ui.editing = undefined; render(); });
+document.addEventListener('click', ev=>{
+  const a = ev.target.closest('.lk');
+  if(a && a.dataset.id){
+    ev.preventDefault();
+    ui.tab='entries'; ui.openId = a.dataset.id; ui.editing = undefined;
+    render();
+    const box = document.querySelector('.item[data-id="'+CSS.escape(a.dataset.id)+'"]');
+    if(box) box.scrollIntoView({block:'nearest'});
+  }
+});
+
+/* 支持 #timeline / #graph / #family / #maps / #data 直接跳转到对应页 */
+(function(){
+  const h = (location.hash || '').replace(/^#/, '');
+  if(TAB_IDS[h]) ui.tab = h;
+})();
+
+if(SERVER_MODE){
+  /* 服务模式：本地服务直读直写，免授权。心跳保活，页面关闭约 3 分钟后服务自动退出 */
+  fetch('/api/ping').catch(()=>{});
+  setInterval(()=>{ fetch('/api/ping').catch(()=>{}); }, 5000);
+  refresh();
+}else{
+  render();
+}
+</script>
+</body>
+</html>
