@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 藏经阁 · 璇星大陆世界观 —— 桌面窗口版
-作者 / Author: StrangeDragon1（奇怪的龙 / 奇怪的龍）
-许可证 / License: CC BY-NC-SA 4.0（署名-非商业性使用-相同方式共享）
+作者 / Author: StrangeDragon1（奇怪的龙龙 / 奇怪的龍龍）
+许可 / License: 自定义许可（软件不可商用、产出内容可商用、修改需署名）—— 见根目录 LICENSE
 
 思路：复用 cangjingge_server 的本地 HTTP 服务（不自动开浏览器），
 再用 pywebview 弹出一个原生窗口来渲染界面。
