@@ -1,6 +1,6 @@
 # 藏经阁 · AI 写词条规范
 
-> 作者 / Author：StrangeDragon1（奇怪的龙龙 / 奇怪的龍龍）　·　许可 / License：自定义许可（软件不可商用、产出内容可商用、修改需署名），详见 [`LICENSE`](LICENSE)。
+> 作者 / Author：StrangeDragon1（奇怪的龙龙 / 奇怪的龍龍）　·　许可 / License：CC BY-NC 4.0（署名-非商业性使用），详见 [`LICENSE`](LICENSE)。
 
 > 这份文档是写给 AI 看的。  
 > 用途：你（AI）拿到子健给的一段故事、设定、口述碎片后，按本规范把它拆成词条，直接写成**当前世界观**文件夹下的 `.md` 文件。  
