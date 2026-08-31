@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "templates": [
+    {
+      "id": "builtin_role",
+      "name": "人物默认",
+      "type": "role",
+      "default": true,
+      "fields": [
+        {"label": "境界", "kind": "text", "options": null},
+        {"label": "年龄", "kind": "number", "options": null},
+        {"label": "性别", "kind": "select", "options": ["男", "女", "不详"]},
+        {"label": "身份", "kind": "text", "options": null},
+        {"label": "门派", "kind": "entry", "options": null},
+        {"label": "生卒年", "kind": "text", "options": null},
+        {"label": "父母", "kind": "entry", "options": null},
+        {"label": "亲密关系", "kind": "entry", "options": null}
+      ]
+    },
+    {
+      "id": "builtin_faction",
+      "name": "势力默认",
+      "type": "faction",
+      "default": true,
+      "fields": [
+        {"label": "宗主", "kind": "entry", "options": null},
+        {"label": "所在地", "kind": "entry", "options": null},
+        {"label": "核心理念", "kind": "text", "options": null}
+      ]
+    },
+    {
+      "id": "builtin_item",
+      "name": "物品默认",
+      "type": "item",
+      "default": true,
+      "fields": [
+        {"label": "品阶", "kind": "text", "options": null},
+        {"label": "类别", "kind": "text", "options": null},
+        {"label": "持有者", "kind": "entry", "options": null},
+        {"label": "来历", "kind": "text", "options": null}
+      ]
+    },
+    {
+      "id": "builtin_place",
+      "name": "地点默认",
+      "type": "place",
+      "default": true,
+      "fields": [
+        {"label": "所属区域", "kind": "entry", "options": null},
+        {"label": "特征", "kind": "text", "options": null}
+      ]
+    },
+    {
+      "id": "builtin_event",
+      "name": "事件默认",
+      "type": "event",
+      "default": true,
+      "fields": [
+        {"label": "参与人物", "kind": "entry", "options": null},
+        {"label": "起因", "kind": "text", "options": null},
+        {"label": "结果", "kind": "text", "options": null},
+        {"label": "地点", "kind": "entry", "options": null}
+      ]
+    },
+    {
+      "id": "builtin_lore",
+      "name": "设定默认",
+      "type": "lore",
+      "default": true,
+      "fields": [
+        {"label": "类别", "kind": "text", "options": null}
+      ]
+    }
+  ]
+}

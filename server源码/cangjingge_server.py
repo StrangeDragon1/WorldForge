@@ -14,6 +14,7 @@
 import json
 import os
 import re
+import shutil
 import socket
 import sys
 import tempfile
@@ -32,6 +33,10 @@ START_GRACE_SEC = 60      # 启动宽限期
 
 APP_NAME = '藏经阁'
 MARKER = '.cangjingge.json'
+# ---- 多世界观（存档容器） ----
+WORLDS_FILE = '.worlds.json'      # 世界观存档容器里的注册表
+WORKSPACE_NAME = '世界存档'       # 软件根目录下的默认存档容器名
+LEGACY_WORLD_NAME = '璇星大陆'   # 首次运行时旧 data 迁移成的最初世界观名
 TYPES = {
     'role': '人物', 'faction': '势力', 'item': '物品',
     'place': '地点', 'event': '事件', 'lore': '设定',
@@ -113,7 +118,273 @@ def find_html():
     return None, '缺失'
 
 
-DATA_PATH, DATA_SOURCE = resolve_data_dir()
+def safe_name(n):
+    s = re.sub(r'[\\/:*?"<>|]', '_', str(n or '').strip())
+    s = re.sub(r'[. ]+$', '', s)
+    return s or '未命名'
+
+
+def atomic_write(path, text):
+    """先写临时文件再原子替换：写入过程中若中断（崩溃 / 断电），原文件仍然完好"""
+    tmp = path + '.tmp'
+    try:
+        with open(tmp, 'w', encoding='utf-8', newline='\n') as f:
+            f.write(text)
+        os.replace(tmp, path)
+    except OSError:
+        try:
+            if os.path.isfile(tmp):
+                os.remove(tmp)
+        except OSError:
+            pass
+        raise
+
+
+# ============================ 多世界观（存档容器） ============================
+
+def is_workspace_dir(p):
+    """是不是一个世界观存档容器（含 .worlds.json 注册表）"""
+    return os.path.isfile(os.path.join(p, WORLDS_FILE))
+
+
+def is_world_dir(p):
+    """是不是一个世界观数据根（含 .cangjingge.json 标记）"""
+    return os.path.isfile(os.path.join(p, MARKER))
+
+
+def looks_like_world(p):
+    """没有标记但已含六大类型文件夹，也按世界观数据根看待"""
+    if is_world_dir(p):
+        return True
+    return any(os.path.isdir(os.path.join(p, d)) for d in DIR_TO_TYPE)
+
+
+def resolve_startup():
+    """确定运行模式与数据目录。
+    返回 (mode, data_path, workspace_root, source)
+    mode: 'workspace' 多世界观存档 | 'legacy' 单世界兼容（拖了某个世界观直接打开）
+    """
+    cands = []
+    for a in sys.argv[1:]:
+        a = str(a).strip().strip('"')
+        if a and os.path.isdir(a):
+            cands.append(a)
+    env = os.environ.get('CANGJINGGE_HOME')
+    if env and env.strip():
+        e = env.strip().strip('"')
+        if os.path.isdir(e):
+            cands.append(e)
+    cfg = os.path.join(BASE, '数据目录.txt')
+    if os.path.isfile(cfg):
+        try:
+            with open(cfg, encoding='utf-8', errors='replace') as f:
+                for line in f:
+                    v = line.strip().strip('"')
+                    if not v or v.startswith('#'):
+                        continue
+                    if os.path.isdir(v):
+                        cands.append(v)
+                    break
+        except OSError:
+            pass
+    for p in cands:
+        if is_workspace_dir(p):
+            return ('workspace', None, p, '拖拽/设置（世界观存档容器）')
+        if is_world_dir(p):
+            return ('legacy', p, None, '拖拽/设置（单个世界观：%s）' % p)
+        sub = os.path.join(p, 'data')
+        if is_world_dir(sub):
+            return ('legacy', sub, None, '拖拽/设置（使用其下的 data 子文件夹）')
+        if looks_like_world(p):
+            return ('legacy', p, None, '拖拽/设置（含类型子文件夹，视为数据根）')
+    return ('workspace', None, os.path.join(BASE, WORKSPACE_NAME),
+            '默认（软件根目录下的「%s」存档容器）' % WORKSPACE_NAME)
+
+
+def unique_ws_dirname(ws, base):
+    n = safe_name(base) or '未命名'
+    i = 2
+    while os.path.exists(os.path.join(ws, n)):
+        n = '%s(%d)' % (safe_name(base), i)
+        i += 1
+    return n
+
+
+def make_world_dir(ws, dirn):
+    """在存档容器里建一个世界观数据根：六类文件夹 + 标记 + 默认纪元表。返回目录。"""
+    d = os.path.join(ws, dirn)
+    os.makedirs(d, exist_ok=True)
+    for t in DIR_TO_TYPE:
+        os.makedirs(os.path.join(d, t), exist_ok=True)
+    marker = os.path.join(d, MARKER)
+    if not os.path.isfile(marker):
+        try:
+            with open(marker, 'w', encoding='utf-8') as f:
+                json.dump({'app': APP_NAME, 'version': 2,
+                           'note': '此文件夹是一个世界观的数据目录（藏经阁）。'
+                                   '每个 .md 文件是一个词条，所在文件夹决定其类型，'
+                                   '可用任意文本编辑器直接修改。'},
+                          f, ensure_ascii=False, indent=2)
+        except OSError:
+            pass
+    era_dir = os.path.join(d, '设定')
+    os.makedirs(era_dir, exist_ok=True)
+    era = os.path.join(era_dir, '纪元表.md')
+    if not os.path.isfile(era):
+        try:
+            with open(era, 'w', encoding='utf-8', newline='\n') as f:
+                f.write('---\n---\n\n公元\n')
+        except OSError:
+            pass
+    return d
+
+
+def load_worlds():
+    """读存档容器里的世界观注册表。返回 (worlds 列表, 当前激活目录名)。"""
+    if not WORKSPACE_ROOT:
+        return [], None
+    wf = os.path.join(WORKSPACE_ROOT, WORLDS_FILE)
+    try:
+        with open(wf, encoding='utf-8') as f:
+            d = json.load(f)
+    except Exception:
+        return [], None
+    worlds = d.get('worlds')
+    if not isinstance(worlds, list):
+        worlds = []
+    active = d.get('lastActive')
+    dirs = [w.get('dir') for w in worlds if isinstance(w, dict)]
+    if active not in dirs:
+        active = dirs[0] if dirs else None
+    return worlds, active
+
+
+def _save_worlds(ws, worlds, active):
+    atomic_write(os.path.join(ws, WORLDS_FILE),
+                 json.dumps({'version': 1, 'worlds': worlds, 'lastActive': active},
+                            ensure_ascii=False, indent=2))
+
+
+def ensure_workspace(ws):
+    """确保 ws 是世界观存档容器；首次使用则迁移旧 data 或建首个世界观。
+    返回 (worlds, active_dirname, first_run)。"""
+    os.makedirs(ws, exist_ok=True)
+    wf = os.path.join(ws, WORLDS_FILE)
+    if os.path.isfile(wf):
+        try:
+            with open(wf, encoding='utf-8') as f:
+                d = json.load(f)
+            worlds = d.get('worlds')
+            if not isinstance(worlds, list):
+                raise ValueError('worlds 不是列表')
+            active = d.get('lastActive')
+            dirs = [w.get('dir') for w in worlds if isinstance(w, dict)]
+            if active not in dirs:
+                active = dirs[0] if dirs else None
+            return worlds, active, False
+        except Exception:
+            # 注册表损坏/缺失时，先备份原文件，避免静默丢信息
+            try:
+                if os.path.isfile(wf):
+                    os.replace(wf, wf + '.bak')
+            except OSError:
+                pass
+    # 首次：初始化
+    worlds = []
+    legacy = os.path.join(BASE, 'data')
+    if os.path.isdir(legacy) and is_world_dir(legacy):
+        dst = os.path.join(ws, LEGACY_WORLD_NAME)
+        # 仅当存档容器基本为空时，把旧 data 整体迁移进来
+        try:
+            empty_ws = not os.listdir(ws)
+        except OSError:
+            empty_ws = False
+        if empty_ws and not os.path.exists(dst):
+            try:
+                shutil.move(legacy, dst)
+            except OSError:
+                pass
+        if os.path.isdir(dst) and is_world_dir(dst):
+            worlds.append({'name': LEGACY_WORLD_NAME, 'dir': LEGACY_WORLD_NAME})
+            active = LEGACY_WORLD_NAME
+    if not worlds:
+        dirn = unique_ws_dirname(ws, LEGACY_WORLD_NAME)
+        make_world_dir(ws, dirn)
+        worlds.append({'name': LEGACY_WORLD_NAME, 'dir': dirn})
+        active = dirn
+    _save_worlds(ws, worlds, active)
+    return worlds, active, True
+
+
+def activate_world(dirname):
+    """切换到存档容器内的某个世界观，并让服务重新绑定该数据目录。"""
+    global DATA_PATH, ACTIVE_WORLD, DATA_SOURCE
+    if not WORKSPACE_ROOT:
+        return False
+    safe = safe_name(dirname)
+    target = os.path.join(WORKSPACE_ROOT, safe)
+    if not is_world_dir(target):
+        return False
+    ACTIVE_WORLD = safe
+    DATA_PATH = target
+    DATA_SOURCE = '世界观存档：%s（当前：%s）' % (WORKSPACE_ROOT, safe)
+    worlds, _ = load_worlds()
+    _save_worlds(WORKSPACE_ROOT, worlds, safe)
+    _entries_cache['sig'] = None
+    _entries_cache['data'] = None
+    ensure_dirs()
+    return True
+
+
+def create_new_world(name):
+    """在存档容器里新建一个世界观并激活。返回目录名，失败返回 None。"""
+    global DATA_PATH, ACTIVE_WORLD, DATA_SOURCE
+    if not WORKSPACE_ROOT:
+        return None
+    name = str(name or '').strip()
+    if not name:
+        return None
+    dirn = unique_ws_dirname(WORKSPACE_ROOT, name)
+    make_world_dir(WORKSPACE_ROOT, dirn)
+    worlds, _ = load_worlds()
+    worlds.append({'name': name, 'dir': dirn})
+    ACTIVE_WORLD = dirn
+    DATA_PATH = os.path.join(WORKSPACE_ROOT, dirn)
+    DATA_SOURCE = '世界观存档：%s（当前：%s）' % (WORKSPACE_ROOT, dirn)
+    _save_worlds(WORKSPACE_ROOT, worlds, dirn)
+    _entries_cache['sig'] = None
+    _entries_cache['data'] = None
+    ensure_dirs()
+    return dirn
+
+
+# ---- 运行时（多世界观）状态 ----
+MODE = 'legacy'          # 'workspace' 多世界观存档 | 'legacy' 单世界兼容
+WORKSPACE_ROOT = None    # 世界观存档容器根目录（仅 workspace 模式）
+WORLDS = None            # [{'name','dir'}, ...]（仅 workspace 模式）
+ACTIVE_WORLD = None      # 当前激活的世界观子目录名（仅 workspace 模式）
+FIRST_RUN = False        # 本次启动是否首次初始化存档
+
+
+def init_runtime():
+    """根据启动参数/环境确定运行模式与数据目录，并完成首次存档建库。"""
+    global DATA_PATH, DATA_SOURCE, MODE, WORKSPACE_ROOT, WORLDS, ACTIVE_WORLD, FIRST_RUN
+    mode, data_path, ws_root, source = resolve_startup()
+    MODE = mode
+    if mode == 'workspace':
+        WORKSPACE_ROOT = ws_root
+        WORLDS, ACTIVE_WORLD, FIRST_RUN = ensure_workspace(ws_root)
+        DATA_PATH = os.path.join(ws_root, ACTIVE_WORLD) if ACTIVE_WORLD else ws_root
+        DATA_SOURCE = '世界观存档：%s（当前：%s）%s' % (
+            ws_root, ACTIVE_WORLD or '（空）',
+            '，本次已初始化' if FIRST_RUN else '')
+        WORLDS, ACTIVE_WORLD = load_worlds()
+    else:
+        DATA_PATH = data_path
+        DATA_SOURCE = source
+
+
+init_runtime()
 HTML_PATH, HTML_SOURCE = find_html()
 PORT = PORT_BASE
 
@@ -427,12 +698,6 @@ def empty_trash():
 
 # ============================ 词条读写 ============================
 
-def safe_name(n):
-    s = re.sub(r'[\\/:*?"<>|]', '_', str(n or '').strip())
-    s = re.sub(r'[. ]+$', '', s)
-    return s or '未命名'
-
-
 def parse_md(text, type_key, base):
     e = {'id': TYPES[type_key] + '/' + base, 'name': base, 'type': type_key,
          'aliases': [], 'year': '', 'fields': [], 'content': ''}
@@ -476,22 +741,6 @@ def serialize_md(e):
         if label:
             head += label + ': ' + (f.get('value') or '') + '\n'
     return '---\n' + head + '---\n\n' + (e.get('content') or '') + '\n'
-
-
-def atomic_write(path, text):
-    """先写临时文件再原子替换：写入过程中若中断（崩溃 / 断电），原文件仍然完好"""
-    tmp = path + '.tmp'
-    try:
-        with open(tmp, 'w', encoding='utf-8', newline='\n') as f:
-            f.write(text)
-        os.replace(tmp, path)
-    except OSError:
-        try:
-            if os.path.isfile(tmp):
-                os.remove(tmp)
-        except OSError:
-            pass
-        raise
 
 
 def entries_signature():
@@ -677,6 +926,15 @@ class Handler(BaseHTTPRequestHandler):
         elif self.path == '/api/info':
             self._json({'app': APP_NAME, 'root': DATA_PATH, 'rootSource': DATA_SOURCE,
                         'htmlSource': HTML_SOURCE, 'port': PORT, 'count': count_entries()})
+        elif self.path == '/api/worlds':
+            if MODE == 'workspace' and WORKSPACE_ROOT:
+                worlds, active = load_worlds()
+                self._json({'mode': 'workspace', 'root': WORKSPACE_ROOT,
+                            'worlds': worlds, 'lastActive': active,
+                            'active': ACTIVE_WORLD, 'data': DATA_PATH})
+            else:
+                self._json({'mode': 'legacy', 'root': None, 'worlds': None,
+                            'lastActive': None, 'active': None, 'data': DATA_PATH})
         elif self.path == '/api/trash':
             self._json({'items': load_trash()})
         elif self.path == '/api/history':
@@ -759,6 +1017,19 @@ class Handler(BaseHTTPRequestHandler):
             ok = restore_version(payload.get('type'), payload.get('name'),
                                  payload.get('file'))
             self._json({'ok': ok})
+        elif self.path == '/api/worlds':
+            try:
+                act = payload.get('action')
+                if act == 'switch':
+                    ok = activate_world(payload.get('dir'))
+                    self._json({'ok': bool(ok), 'active': ACTIVE_WORLD if ok else None})
+                elif act == 'create':
+                    dirn = create_new_world(payload.get('name'))
+                    self._json({'ok': bool(dirn), 'active': dirn, 'dir': dirn})
+                else:
+                    self._json({'error': '未知操作'}, 400)
+            except Exception as ex:
+                self._json({'error': str(ex)}, 500)
         elif self.path == '/api/shutdown':
             self._json({'ok': True})
             log('收到 /api/shutdown，正在退出')

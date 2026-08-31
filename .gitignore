@@ -6,6 +6,7 @@
 # 备份文件
 *.bak
 藏经阁.exe.bak
+_bak_*/
 
 # 系统垃圾文件
 Thumbs.db

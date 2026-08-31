@@ -44,6 +44,10 @@
   .pathbar .mode{margin-left:auto; color:var(--tx2); flex-shrink:0; font-weight:500; display:flex; align-items:center; gap:5px;}
   .pathbar .mode b{color:var(--accent); font-weight:600;}
   .pathbar .mode::before{content:''; width:5px; height:5px; border-radius:50%; background:var(--accent); opacity:.5;}
+  .worldbar{display:flex; align-items:center; gap:6px; margin-left:12px; flex-shrink:0;}
+  .worldbar .wb-name{font-size:11.5px; color:var(--tx3); white-space:nowrap;}
+  .worldbar select{height:30px; padding:0 8px; border:1px solid var(--bd); border-radius:7px; font-size:12.5px; font-family:inherit; background:var(--bg); color:var(--tx); cursor:pointer; max-width:190px;}
+  .worldbar select:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(63,93,128,.09);}
   .wrap{display:flex; min-height:calc(100vh - 92px);}
   aside{width:304px; background:var(--bg); border-right:1px solid var(--bd); padding:24px 18px; flex-shrink:0; display:flex; flex-direction:column; gap:12px; position:sticky; top:60px; align-self:flex-start; max-height:calc(100vh - 60px); overflow-y:auto;}
   aside input[type=text], aside select{width:100%; padding:8px 11px; border:1px solid var(--bd); border-radius:var(--radius-s); font-size:13px; font-family:inherit; background:var(--bg); color:var(--tx); transition:all .15s ease;}
@@ -317,6 +321,11 @@
     <button data-tab="maps">地图</button>
     <button data-tab="data">数据</button>
   </nav>
+  <span class="worldbar" id="worldbar" hidden>
+    <span class="wb-name">世界观：</span>
+    <select id="worldSel" title="切换世界观"></select>
+    <button class="btn sm ghost" id="worldNew" title="新建一个世界观">＋新建</button>
+  </span>
   <span class="count" id="count"></span>
 </header>
 <div class="pathbar" id="pathbar"></div>
@@ -428,7 +437,8 @@ function kindOf(label, type){
 }
 
 /* ============ 状态 ============ */
-const state = { root:null, rootName:'data', connected:false, entries:[], eraListed:[], info:null, templates:null };
+const state = { root:null, rootName:'data', connected:false, entries:[], eraListed:[], info:null, templates:null,
+                worlds: { mode:'legacy', root:null, worlds:[], active:null } };
 const SERVER_MODE = (location.protocol === 'http:');
 const TAB_IDS = {entries:1, timeline:1, graph:1, family:1, maps:1, data:1};
 const ui = {tab:'entries', openId:null, editing:undefined, search:'', typeFilter:'all',
@@ -922,6 +932,64 @@ async function refresh(){
   render();
 }
 
+/* ============ 多世界观 ============ */
+async function loadWorlds(){
+  if(!SERVER_MODE) return;
+  try{
+    const r = await fetch('/api/worlds');
+    if(!r.ok) throw 0;
+    state.worlds = await r.json();
+  }catch(e){
+    state.worlds = { mode:'legacy', root:null, worlds:[], active:null };
+  }
+  const bar = document.getElementById('worldbar');
+  const sel = document.getElementById('worldSel');
+  if(!bar || !sel) return;
+  if(!state.worlds || state.worlds.mode !== 'workspace' || !(state.worlds.worlds||[]).length){
+    bar.hidden = true;
+    return;
+  }
+  bar.hidden = false;
+  const active = state.worlds.active;
+  sel.innerHTML = (state.worlds.worlds||[]).map(w=>{
+    const cur = (w.dir === active);
+    return '<option value="'+esc(w.dir)+'"'+(cur?' selected':'')+'>'+esc(w.name)+(cur?'（当前）':'')+'</option>';
+  }).join('');
+}
+
+async function switchWorld(dir){
+  try{
+    const r = await fetch('/api/worlds', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'switch', dir: dir})});
+    const d = await r.json();
+    if(!d.ok){ alert('切换世界观失败：' + (d.error || '')); return; }
+    await loadWorlds();
+    await refresh();
+  }catch(e){ alert('切换世界观失败'); }
+}
+
+async function createWorld(){
+  const name = (window.prompt('请输入新世界观的名字（将在存档里新建一个文件夹）：')||'').trim();
+  if(!name) return;
+  try{
+    const r = await fetch('/api/worlds', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'create', name: name})});
+    const d = await r.json();
+    if(!d.ok){ alert('新建世界观失败：' + (d.error || '')); return; }
+    await loadWorlds();
+    await refresh();
+  }catch(e){ alert('新建世界观失败'); }
+}
+
+document.getElementById('worldNew').onclick = ()=>createWorld();
+document.getElementById('worldSel').addEventListener('change', ()=>{
+  const sel = document.getElementById('worldSel');
+  const dir = sel.value;
+  if(!dir || dir === state.worlds.active) return;
+  if(!confirm('切换到该世界观？\n词条列表会切换为它的内容。')){ sel.value = state.worlds.active || ''; return; }
+  switchWorld(dir);
+});
+
 /* ============ 工具函数 ============ */
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function entryById(id){ return state.entries.find(e=>e.id===id); }
@@ -1088,9 +1156,14 @@ function updatePathbar(){
   let p = '';
   if(SERVER_MODE && state.info) p = state.info.root || '';
   else if(state.rootName) p = state.rootName + '（浏览器不提供完整路径）';
+  let worldLbl = '';
+  if(SERVER_MODE && state.worlds && state.worlds.mode === 'workspace' && state.worlds.active){
+    const w = (state.worlds.worlds||[]).find(x=>x.dir===state.worlds.active);
+    worldLbl = '<span class="sep">·</span><span>世界观：<b>'+esc((w&&w.name)||state.worlds.active)+'</b></span>';
+  }
   el.innerHTML =
     '<span class="lb">数据目录</span><span class="pth" title="'+esc(p || '')+'">'+esc(p || '—')+'</span>' +
-    '<span class="sep">·</span><span>'+n+' 个词条</span>' +
+    '<span class="sep">·</span><span>'+n+' 个词条</span>' + worldLbl +
     '<span class="mode">'+(SERVER_MODE
       ? '<b>本地服务</b> · 免授权直读直写'
       : '文件夹授权 · 每会话选一次')+'</span>';
@@ -2992,7 +3065,7 @@ if(SERVER_MODE){
   /* 服务模式：本地服务直读直写，免授权。心跳保活，页面关闭约 3 分钟后服务自动退出 */
   fetch('/api/ping').catch(()=>{});
   setInterval(()=>{ fetch('/api/ping').catch(()=>{}); }, 5000);
-  refresh();
+  (async()=>{ await loadWorlds(); refresh(); })();
 }else{
   render();
 }
