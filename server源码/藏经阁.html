@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<!-- 藏经阁 · 璇星大陆世界观  作者/Author: StrangeDragon1（奇怪的龙 / 奇怪的龍）
+     许可证/License: CC BY-NC-SA 4.0（署名-非商业性使用-相同方式共享） -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>藏经阁 · 世界观图书馆</title>
@@ -30,6 +32,7 @@
   header{background:var(--bg); border-bottom:1px solid var(--bd); padding:0 28px; display:flex; align-items:center; gap:24px; height:60px; position:sticky; top:0; z-index:10; box-shadow:var(--shadow-2);}
   header h1{font-family:var(--serif); font-size:20px; font-weight:600; letter-spacing:2px; color:var(--tx); display:flex; align-items:center; gap:9px;}
   header h1::before{content:''; width:22px; height:22px; border-radius:6px; background:linear-gradient(135deg, var(--accent), #818cf8); box-shadow:0 2px 6px rgba(79,70,229,.28);}
+  header h1 .hd-auth{font-size:11px; font-weight:500; color:var(--tx3); letter-spacing:.2px; white-space:nowrap;}
   header .sub{font-size:12px; color:var(--tx3); margin-left:-8px; letter-spacing:.3px;}
   nav{display:flex; gap:2px; background:var(--bg2); padding:4px; border-radius:var(--radius-s); flex:0 0 auto; min-width:0; border:1px solid var(--bd);}
   nav button{border:none; background:none; padding:6px 13px; font-size:13px; color:var(--tx2); cursor:pointer; border-radius:5px; font-family:inherit; transition:all .15s ease; white-space:nowrap; font-weight:500;}
@@ -332,7 +335,7 @@
 </head>
 <body>
 <header>
-  <h1>藏经阁</h1>
+  <h1>藏经阁<span class="hd-auth">· 作者 StrangeDragon1（奇怪的龙）· CC BY-NC-SA 4.0</span></h1>
   <nav>
     <button data-tab="entries">词条</button>
     <button data-tab="timeline">编年史</button>
