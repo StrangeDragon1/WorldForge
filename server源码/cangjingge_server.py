@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 """
-藏经阁 —— 本地服务
+世界观锻造炉 —— 本地服务
 作者 / Author: StrangeDragon1（奇怪的龙龙 / 奇怪的龍龍）
 许可 / License: CC BY-NC 4.0（署名-非商业性使用）—— 见根目录 LICENSE
 
-本地服务：双击藏经阁.exe（由本文件打包）后在 127.0.0.1 上启动，
+本地服务：双击世界观锻造炉.exe（由本文件打包）后在 127.0.0.1 上启动，
 浏览器访问 http://127.0.0.1:8734/ 即可免授权直读直写 data 文件夹。
 
 数据目录可按下列优先级指定（先命中者生效）：
-  1. 把文件夹拖到 exe 上 / 命令行传参      藏经阁.exe "D:\\我的世界观"
+  1. 把文件夹拖到 exe 上 / 命令行传参      世界观锻造炉.exe "D:\\我的世界观"
   2. 环境变量 CANGJINGGE_HOME
   3. exe 旁边的「数据目录.txt」（写一行绝对路径）
   4. 默认：exe 所在目录下的 data 文件夹
 
-网页文件优先用 exe 旁边的 藏经阁.html，找不到时回退到打包内嵌的那份。
+网页文件优先用 exe 旁边的 世界观锻造炉.html，找不到时回退到打包内嵌的那份。
 """
 import json
 import os
@@ -35,7 +35,7 @@ PORT_RANGE = 10
 IDLE_SHUTDOWN_SEC = 180   # 页面心跳消失超过 3 分钟自动退出
 START_GRACE_SEC = 60      # 启动宽限期
 
-APP_NAME = '藏经阁'
+APP_NAME = '世界观锻造炉'
 MARKER = '.cangjingge.json'
 # ---- 多世界观（存档容器） ----
 WORLDS_FILE = '.worlds.json'      # 世界观存档容器里的注册表
@@ -70,10 +70,10 @@ BASE = app_dir()
 
 def find_html():
     """优先用外部 html（方便随时改），找不到才用打包内嵌的那份"""
-    p = os.path.join(BASE, '藏经阁.html')
+    p = os.path.join(BASE, '世界观锻造炉.html')
     if os.path.isfile(p):
         return p, '外部文件'
-    p = resource_path('藏经阁.html')
+    p = resource_path('世界观锻造炉.html')
     if os.path.isfile(p):
         return p, '内嵌（exe 自带）'
     return None, '缺失'
@@ -182,7 +182,7 @@ def make_world_dir(ws, dirn):
         try:
             with open(marker, 'w', encoding='utf-8') as f:
                 json.dump({'app': APP_NAME, 'version': 2,
-                           'note': '此文件夹是一个世界观的数据目录（藏经阁）。'
+                           'note': '此文件夹是一个世界观的数据目录（世界观锻造炉）。'
                                    '每个 .md 文件是一个词条，所在文件夹决定其类型，'
                                    '可用任意文本编辑器直接修改。'},
                           f, ensure_ascii=False, indent=2)
@@ -360,7 +360,7 @@ def setup_log():
     for d in (os.path.join(BASE, 'logs'), tempfile.gettempdir()):
         try:
             os.makedirs(d, exist_ok=True)
-            p = os.path.join(d, '藏经阁启动日志.txt')
+            p = os.path.join(d, '世界观锻造炉启动日志.txt')
             with open(p, 'a', encoding='utf-8'):
                 pass
             LOG_PATH = p
@@ -759,7 +759,7 @@ def ensure_dirs():
         if not os.path.isfile(marker):
             with open(marker, 'w', encoding='utf-8') as f:
                 json.dump({'app': APP_NAME, 'version': 2,
-                           'note': '此文件夹是藏经阁的数据目录。每个 .md 文件是一个词条，'
+                           'note': '此文件夹是世界观锻造炉的数据目录。每个 .md 文件是一个词条，'
                                    '文件所在文件夹决定词条类型。可以用任何文本编辑器直接修改。'},
                           f, ensure_ascii=False, indent=2)
     except OSError:
@@ -876,11 +876,11 @@ class Handler(BaseHTTPRequestHandler):
                         body = f.read()
                     self._send(200, body, 'text/html; charset=utf-8')
                 except OSError:
-                    self._send(500, '读取 藏经阁.html 失败'.encode('utf-8'),
+                    self._send(500, '读取 世界观锻造炉.html 失败'.encode('utf-8'),
                                'text/plain; charset=utf-8')
             else:
-                self._send(404, '找不到 藏经阁.html，且 exe 内也没有内嵌版本。'
-                                '请把 藏经阁.html 放回 exe 旁边。'.encode('utf-8'),
+                self._send(404, '找不到 世界观锻造炉.html，且 exe 内也没有内嵌版本。'
+                                '请把 世界观锻造炉.html 放回 exe 旁边。'.encode('utf-8'),
                            'text/plain; charset=utf-8')
         elif self.path == '/api/entries':
             self._json({'entries': load_all_cached(), 'root': DATA_PATH, 'rootSource': DATA_SOURCE})
@@ -1026,7 +1026,7 @@ def same_path(a, b):
 
 
 def find_running():
-    """并行探测所有候选端口，找出已经在跑的藏经阁实例，返回 (端口, info)"""
+    """并行探测所有候选端口，找出已经在跑的世界观锻造炉实例，返回 (端口, info)"""
     found = {}
 
     def check(p):

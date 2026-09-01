@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-藏经阁 —— 桌面窗口版
+世界观锻造炉 —— 桌面窗口版
 作者 / Author: StrangeDragon1（奇怪的龙龙 / 奇怪的龍龍）
 许可 / License: CC BY-NC 4.0（署名-非商业性使用）—— 见根目录 LICENSE
 
@@ -13,8 +13,8 @@
   - 否(N)：不安装，改用浏览器打开
   - 取消 ：退出
 
-本文件为新增测试文件，不改动 cangjingge_server.py 与 藏经阁.html：
-  - 端口：8734 起自动顺延（若真正藏经阁已在跑，会另开端口，互不影响）
+本文件为新增测试文件，不改动 cangjingge_server.py 与 世界观锻造炉.html：
+  - 端口：8734 起自动顺延（若真正世界观锻造炉已在跑，会另开端口，互不影响）
   - 数据目录：复用 exe 旁边的 data（或按 CANGJINGGE_HOME / 数据目录.txt）
   - 桌面窗口关闭 = 退出程序；浏览器回退模式下，心跳消失约 3 分钟后自动退出
 """
@@ -65,12 +65,12 @@ def ask_prereq():
     MB_DEFBUTTON3 = 0x00000200   # 默认高亮「取消」，避免手滑误点
     res = ctypes.windll.user32.MessageBoxW(
         0,
-        '使用「藏经阁桌面版」需要 Microsoft Edge WebView2 运行库（前置依赖）。\n\n'
+        '使用「世界观锻造炉桌面版」需要 Microsoft Edge WebView2 运行库（前置依赖）。\n\n'
         '是否跳转到微软官方安装页面？\n\n'
         '是(Y) ＝ 跳转安装\n'
         '否(N) ＝ 不安装，改用浏览器打开\n'
         '取消   ＝ 退出',
-        '藏经阁 · 缺少前置依赖',
+        '世界观锻造炉 · 缺少前置依赖',
         MB_YESNOCANCEL | MB_ICONQUESTION | MB_DEFBUTTON3,
     )
     if res == 6:      # IDYES
@@ -145,7 +145,7 @@ def main():
 
         # WebView2 正常：弹出桌面窗口
         webview.create_window(
-            '藏经阁 · 桌面版（测试）',
+            '世界观锻造炉 · 桌面版（测试）',
             url,
             width=1180, height=820,
             min_size=(900, 640),

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<!-- 藏经阁  作者/Author: StrangeDragon1（奇怪的龙龙 / 奇怪的龍龍）
+<!-- 世界观锻造炉  作者/Author: StrangeDragon1（奇怪的龙龙 / 奇怪的龍龍）
      许可/License: CC BY-NC 4.0（署名-非商业性使用）—— 见根目录 LICENSE -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>藏经阁 · 世界观图书馆</title>
+<title>世界观锻造炉 · 世界观资料库</title>
 <style>
   :root{
     /* 表面色：冷白系列，背景从暖白改纯白 */
@@ -335,7 +335,7 @@
 </head>
 <body>
 <header>
-  <h1>藏经阁</h1>
+  <h1>世界观锻造炉</h1>
   <nav>
     <button data-tab="entries">词条</button>
     <button data-tab="timeline">编年史</button>
@@ -354,7 +354,7 @@
 <div class="pathbar" id="pathbar"></div>
 <div class="wrap" id="app"></div>
 
-<footer class="site-foot">藏经阁 &nbsp;|&nbsp; 作者 / Author：StrangeDragon1（奇怪的龙龙） &nbsp;|&nbsp; 采用 CC BY-NC 4.0（署名-非商业性使用），见 LICENSE</footer>
+<footer class="site-foot">世界观锻造炉 &nbsp;|&nbsp; 作者 / Author：StrangeDragon1（奇怪的龙龙） &nbsp;|&nbsp; 采用 CC BY-NC 4.0（署名-非商业性使用），见 LICENSE</footer>
 
 <script>
 'use strict';
@@ -483,7 +483,7 @@ async function readTextFile(dh, fname){
 }
 async function connect(){
   if(!window.showDirectoryPicker){
-    alert('这个浏览器不支持「文件夹授权」功能。请用 Edge 或 Chrome 打开藏经阁.html（已实测可用）。');
+    alert('这个浏览器不支持「文件夹授权」功能。请用 Edge 或 Chrome 打开世界观锻造炉.html（已实测可用）。');
     return;
   }
   let root;
@@ -500,13 +500,13 @@ async function connect(){
       let empty = true;
       try{ for await (const entry of root.values()){ empty = false; break; } }catch(e){}
       const msg = empty
-        ? '要把这个文件夹初始化为藏经阁数据目录吗？\n（将创建 人物 / 势力 / 物品 / 地点 / 事件 / 设定 子文件夹）'
-        : '这个文件夹里已有其他内容。\n仍要在这里创建藏经阁的子文件夹结构吗？';
+        ? '要把这个文件夹初始化为世界观锻造炉数据目录吗？\n（将创建 人物 / 势力 / 物品 / 地点 / 事件 / 设定 子文件夹）'
+        : '这个文件夹里已有其他内容。\n仍要在这里创建世界观锻造炉的子文件夹结构吗？';
       if(!confirm(msg)) return;
       for(const d of DIRS){ await root.getDirectoryHandle(d, {create:true}); }
       const fh = await root.getFileHandle(MARKER, {create:true});
       const w = await fh.createWritable();
-      await w.write(JSON.stringify({app:'藏经阁', version:2, note:'每个 .md 文件是一个词条，所在文件夹决定类型。'}, null, 2));
+      await w.write(JSON.stringify({app:'世界观锻造炉', version:2, note:'每个 .md 文件是一个词条，所在文件夹决定类型。'}, null, 2));
       await w.close();
     }else{
       for(const d of DIRS){ await root.getDirectoryHandle(d, {create:true}); }
@@ -1222,12 +1222,12 @@ function renderGate(){
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('on'));
   app.innerHTML = '<main><div class="card gate-card">' +
     '<h2>连接数据文件夹</h2>' +
-    '<p>藏经阁的数据现在是你磁盘上的真实文件：<b>data</b> 文件夹里每个 .md 是一个词条，所在文件夹决定类型。<br>' +
+    '<p>世界观锻造炉的数据现在是你磁盘上的真实文件：<b>data</b> 文件夹里每个 .md 是一个词条，所在文件夹决定类型。<br>' +
     '由于浏览器安全机制，每次打开页面需要重新授权一次。</p>' +
     '<button class="btn primary lg" id="btnConnect">连接 data 文件夹</button>' +
     '<p class="hint">请选择世界观目录下的 data 文件夹（如 E:\\世界观\\data）<br>' +
     '请使用 Edge 或 Chrome 打开本页面<br>' +
-    '小提示：双击同目录的「藏经阁.exe」可免授权启动，无需本步骤</p>' +
+    '小提示：双击同目录的「世界观锻造炉.exe」可免授权启动，无需本步骤</p>' +
     '</div></main>';
   document.getElementById('btnConnect').onclick = ()=>connect();
 }
@@ -1456,7 +1456,7 @@ function renderMain(){
   const e = entryById(ui.openId);
   if(!e){
     if(!state.entries.length){
-      main.innerHTML = '<div class="empty"><h3>藏经阁空空如也</h3><p>点左侧「＋ 新建词条」，或者直接往 data 文件夹里放 .md 文件然后回来刷新。<br>写正文时提到别的词条名字，会自动变成链接——不需要任何标记语法。</p>' +
+      main.innerHTML = '<div class="empty"><h3>世界观锻造炉空空如也</h3><p>点左侧「＋ 新建词条」，或者直接往 data 文件夹里放 .md 文件然后回来刷新。<br>写正文时提到别的词条名字，会自动变成链接——不需要任何标记语法。</p>' +
         '<div class="ops-row" style="justify-content:center;"><button class="btn subtle sm" id="btnReloadEmpty">重新读取文件夹</button></div></div>';
       const rb = main.querySelector('#btnReloadEmpty');
       if(rb) rb.onclick = ()=>refresh();
@@ -2400,7 +2400,7 @@ function renderData(){
       (SERVER_MODE?'':'<button class="btn ghost sm" id="btnReconnect">更换文件夹</button>')+'</div></div>' +
     '<div class="sec"><h3>词条模板</h3><p>新建词条时预填哪些字段由模板决定，每种类型可以有多个模板。保存在 <code>data/.templates.json</code>，只影响新建，已有词条不受影响。</p>' +
     '<div class="ops-row"><button class="btn primary sm" id="btnTplMgr">管理模板</button></div></div>' +
-    '<div class="sec"><h3>备份</h3><p>导出为 JSON 快照。也可以导入旧版藏经阁（浏览器存储版）的 JSON 备份，导入的词条会写成 .md 文件。</p>' +
+    '<div class="sec"><h3>备份</h3><p>导出为 JSON 快照。也可以导入旧版世界观锻造炉（浏览器存储版）的 JSON 备份，导入的词条会写成 .md 文件。</p>' +
     '<div class="ops-row"><button class="btn primary sm" id="btnExport">导出备份（JSON）</button>' +
     '<button class="btn sm" id="btnImport">导入备份</button><input type="file" id="fileIn" accept=".json,application/json" style="display:none;"></div></div>' +
     '<div class="sec"><h3>回收站</h3><p>删除的词条会先放进 <code>data/.trash</code>，按类型分文件夹保存，随时可恢复。彻底清除后不可找回。</p>' +
@@ -2472,7 +2472,7 @@ function renderData(){
     const blob = new Blob([JSON.stringify({entries:state.entries},null,2)], {type:'application/json'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = '藏经阁-备份-' + new Date().toISOString().slice(0,10) + '.json';
+    a.download = '世界观锻造炉-备份-' + new Date().toISOString().slice(0,10) + '.json';
     a.click(); URL.revokeObjectURL(a.href);
   };
   app.querySelector('#btnImport').onclick = ()=>app.querySelector('#fileIn').click();
