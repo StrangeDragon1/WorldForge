@@ -192,10 +192,11 @@
   .map-wrap{position:relative; display:inline-block; background:var(--bg2); border:1px solid var(--bd); border-radius:12px; overflow:hidden; box-shadow:var(--shadow); line-height:0; max-width:100%;}
   .map-img{display:block; max-width:100%; height:auto; user-select:none;}
   .map-wrap.editing{cursor:crosshair;}
-  .map-pins{position:absolute; inset:0; line-height:1;}
+  .map-pins{position:absolute; inset:0; line-height:1; pointer-events:none;}
+  .map-pin{position:absolute; transform:translate(-50%,-50%);}
   .map-pin{position:absolute; transform:translate(-50%,-50%);}
   .pin-dot{display:block; width:12px; height:12px; border-radius:50%; background:var(--accent); border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.28);}
-  .pin-lb{position:absolute; left:50%; top:13px; transform:translateX(-50%); font-size:11px; color:var(--tx); background:rgba(255,255,255,.94); border:1px solid var(--bd); border-radius:5px; padding:1px 7px; white-space:nowrap; cursor:pointer;}
+  .pin-lb{position:absolute; left:50%; top:13px; transform:translateX(-50%); font-size:11px; color:var(--tx); background:rgba(255,255,255,.94); border:1px solid var(--bd); border-radius:5px; padding:1px 7px; white-space:nowrap; cursor:pointer; pointer-events:auto;}
   .pin-lb:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
   .map-tip{font-size:12px; color:var(--tx3); margin-top:10px;}
   .pick-q{width:100%; padding:8px 11px; border:1px solid var(--bd); border-radius:8px; font-size:13px; font-family:inherit; background:var(--bg2); color:var(--tx);}
