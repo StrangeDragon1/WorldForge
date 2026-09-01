@@ -40,7 +40,8 @@ MARKER = '.cangjingge.json'
 # ---- 多世界观（存档容器） ----
 WORLDS_FILE = '.worlds.json'      # 世界观存档容器里的注册表
 WORKSPACE_NAME = '世界存档'       # 软件根目录下的默认存档容器名
-LEGACY_WORLD_NAME = '璇星大陆'   # 首次运行时旧 data 迁移成的最初世界观名
+LEGACY_WORLD_NAME = '璇星大陆'   # 迁移旧 data 时的最初世界观名
+DEFAULT_WORLD_NAME = '我的世界观' # 首启无旧数据时自动创建的默认世界观名
 TYPES = {
     'role': '人物', 'faction': '势力', 'item': '物品',
     'place': '地点', 'event': '事件', 'lore': '设定',
@@ -269,9 +270,9 @@ def ensure_workspace(ws):
             worlds.append({'name': LEGACY_WORLD_NAME, 'dir': LEGACY_WORLD_NAME})
             active = LEGACY_WORLD_NAME
     if not worlds:
-        dirn = unique_ws_dirname(ws, LEGACY_WORLD_NAME)
+        dirn = unique_ws_dirname(ws, DEFAULT_WORLD_NAME)
         make_world_dir(ws, dirn)
-        worlds.append({'name': LEGACY_WORLD_NAME, 'dir': dirn})
+        worlds.append({'name': DEFAULT_WORLD_NAME, 'dir': dirn})
         active = dirn
     _save_worlds(ws, worlds, active)
     return worlds, active, True
