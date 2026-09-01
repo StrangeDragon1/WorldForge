@@ -868,6 +868,29 @@ class Handler(BaseHTTPRequestHandler):
             return
         self._send(200, body, ctype)
 
+    def _serve_asset(self, rel):
+        """提供打包内嵌的静态资源（网站 Logo / favicon 等）"""
+        table = {
+            '/assets/logo.png':   ('ICON.png', 'image/png'),
+            '/assets/favicon.ico': ('ICON.ico', 'image/x-icon'),
+        }
+        m = table.get(rel)
+        if not m:
+            self._json({'error': '未找到资源'}, 404)
+            return
+        fname, ctype = m
+        p = resource_path(fname)
+        if not os.path.isfile(p):
+            self._send(404, '未找到资源文件'.encode('utf-8'), 'text/plain; charset=utf-8')
+            return
+        try:
+            with open(p, 'rb') as f:
+                body = f.read()
+        except OSError:
+            self._json({'error': '读取失败'}, 500)
+            return
+        self._send(200, body, ctype)
+
     def do_GET(self):
         if self.path == '/' or self.path.startswith('/index'):
             if HTML_PATH:
@@ -916,6 +939,8 @@ class Handler(BaseHTTPRequestHandler):
             self._json({'maps': load_maps()})
         elif self.path.startswith('/api/file'):
             self._serve_file(parse_qs(urlparse(self.path).query))
+        elif self.path.startswith('/assets/'):
+            self._serve_asset(self.path.split('?', 1)[0])
         elif self.path == '/api/ping':
             last_ping[0] = time.time()
             self._json({'ok': True})
