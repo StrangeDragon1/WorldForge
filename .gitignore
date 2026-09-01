@@ -28,3 +28,6 @@ __pycache__/
 *.spec
 build/
 dist/
+
+# 图表 / 流程图产物（archify 本地生成，不入库）
+components/
