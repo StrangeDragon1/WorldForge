@@ -1,0 +1,51 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "世界观锻造炉 · 使用流程",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": "worldforge-workflow.html"
+  },
+  "phases": [
+    { "id": "launch-phase", "label": "启动", "fromCol": 0, "toCol": 1 },
+    { "id": "workspace-phase", "label": "工作区就绪", "fromCol": 2, "toCol": 4, "variant": "emphasis" },
+    { "id": "use-phase", "label": "内容管理", "fromCol": 5, "toCol": 5, "variant": "dashed" }
+  ],
+  "lanes": [
+    { "id": "entry", "label": "入口" },
+    { "id": "core", "label": "启动 · 工作区" },
+    { "id": "alt", "label": "已有存档" },
+    { "id": "use", "label": "世界观与内容" },
+    { "id": "worlds", "label": "多世界观" }
+  ],
+  "mainPath": ["launch", "server", "firstrun", "openlast", "useworld", "browse", "edit"],
+  "nodes": [
+    { "id": "launch", "lane": "entry", "col": 0, "type": "frontend", "label": "启动 exe", "sublabel": "浏览器版 / 桌面版", "width": 132 },
+    { "id": "server", "lane": "core", "col": 1, "type": "backend", "label": "本地服务", "sublabel": "解析工作区「世界存档」· :8734", "width": 132 },
+    { "id": "firstrun", "lane": "core", "col": 2, "type": "security", "label": "首次打开？", "sublabel": "是否已有 .worlds.json", "width": 132 },
+    { "id": "create", "lane": "core", "col": 3, "type": "backend", "label": "创建「我的世界观」", "sublabel": "六类目录 + 纪元表", "width": 132 },
+    { "id": "openlast", "lane": "alt", "col": 3, "type": "backend", "label": "打开上次世界观", "sublabel": "读取 lastActive", "width": 132 },
+    { "id": "useworld", "lane": "core", "col": 4, "type": "frontend", "label": "进入世界观", "sublabel": "默认打开上次 / 新建", "width": 132 },
+    { "id": "browse", "lane": "use", "col": 4, "type": "frontend", "label": "浏览词条 + 工具视图", "sublabel": "关系图 · 家族 · 编年史 · 地图", "width": 132 },
+    { "id": "edit", "lane": "use", "col": 5, "type": "frontend", "label": "编辑 / 新增词条", "sublabel": "文件即数据 · 自动双向链接", "width": 132 },
+    { "id": "multi", "lane": "worlds", "col": 5, "type": "cloud", "label": "多世界观", "sublabel": "新建 / 切换", "width": 132 }
+  ],
+  "edges": [
+    { "id": "launch-server", "from": "launch", "to": "server", "variant": "default" },
+    { "id": "server-firstrun", "from": "server", "to": "firstrun", "variant": "default" },
+    { "id": "firstrun-create", "from": "firstrun", "to": "create", "label": "是 · 首次", "variant": "dashed", "role": "branch" },
+    { "id": "firstrun-openlast", "from": "firstrun", "to": "openlast", "label": "否 · 已有", "variant": "emphasis", "role": "main" },
+    { "id": "create-use", "from": "create", "to": "useworld", "variant": "default", "role": "return" },
+    { "id": "openlast-use", "from": "openlast", "to": "useworld", "variant": "default", "role": "return" },
+    { "id": "useworld-browse", "from": "useworld", "to": "browse", "variant": "default" },
+    { "id": "browse-edit", "from": "browse", "to": "edit", "variant": "default" },
+    { "id": "edit-multi", "from": "edit", "to": "multi", "label": "多世界观", "variant": "dashed", "role": "branch" },
+    { "id": "multi-switch", "from": "multi", "to": "useworld", "label": "切换后", "variant": "dashed", "role": "return" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "文件即数据", "items": ["每个 .md = 一个词条，文件夹决定类型", "正文直接写词条名 → 自动双向链接"] },
+    { "dot": "emerald", "title": "多世界观", "items": ["一个「世界存档」容器装多个世界观", "记住上次打开，下次默认进入"] },
+    { "dot": "amber", "title": "工具视图", "items": ["关系图：选中光晕高亮 + 左侧列表", "家族：聚焦某人看谱系树 · 地图打点"] }
+  ]
+}

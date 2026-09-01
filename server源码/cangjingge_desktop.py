@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-世界观锻造炉 —— 桌面窗口版
+世界观锻造炉 —— 桌面版（正式版，主推）
 作者 / Author: StrangeDragon1（奇怪的龙龙 / 奇怪的龍龍）
 许可 / License: CC BY-NC 4.0（署名-非商业性使用）—— 见根目录 LICENSE
 
+说明：桌面版为正式版、主推入口；浏览器版（世界观锻造炉HTML版.exe）作为兼容版启动器保留。
 思路：复用 cangjingge_server 的本地 HTTP 服务（不自动开浏览器），
 再用 pywebview 弹出一个原生窗口来渲染界面。
 
@@ -13,7 +14,7 @@
   - 否(N)：不安装，改用浏览器打开
   - 取消 ：退出
 
-本文件为新增测试文件，不改动 cangjingge_server.py 与 世界观锻造炉.html：
+本文件为桌面版（正式版）入口，不改动 cangjingge_server.py 与 世界观锻造炉.html：
   - 端口：8734 起自动顺延（若真正世界观锻造炉已在跑，会另开端口，互不影响）
   - 数据目录：复用 exe 旁边的 data（或按 CANGJINGGE_HOME / 数据目录.txt）
   - 桌面窗口关闭 = 退出程序；浏览器回退模式下，心跳消失约 3 分钟后自动退出
@@ -105,7 +106,7 @@ def run_browser_fallback(url):
 def main():
     cs.setup_log()
     cs.log('=' * 46)
-    cs.log('桌面窗口测试版启动')
+    cs.log('桌面版启动')
     cs.log('程序目录 : %s' % cs.BASE)
     cs.log('数据目录 : %s' % cs.DATA_PATH)
     cs.log('网页来源 : %s' % cs.HTML_PATH)
@@ -145,7 +146,7 @@ def main():
 
         # WebView2 正常：弹出桌面窗口
         webview.create_window(
-            '世界观锻造炉 · 桌面版（测试）',
+            '世界观锻造炉 · 桌面版',
             url,
             width=1180, height=820,
             min_size=(900, 640),
@@ -161,7 +162,7 @@ def main():
             server.server_close()
         except Exception:
             pass
-    cs.log('测试版已退出')
+    cs.log('桌面版已退出')
 
 
 if __name__ == '__main__':
