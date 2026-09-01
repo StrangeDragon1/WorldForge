@@ -197,6 +197,8 @@
   .map-pin{position:absolute; transform:translate(-50%,-50%);}
   .pin-dot{display:block; width:12px; height:12px; border-radius:50%; background:var(--accent); border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.28);}
   .pin-lb{position:absolute; left:50%; top:13px; transform:translateX(-50%); font-size:11px; color:var(--tx); background:rgba(255,255,255,.94); border:1px solid var(--bd); border-radius:5px; padding:1px 7px; white-space:nowrap; cursor:pointer; pointer-events:auto;}
+  .pin-del{position:absolute; left:50%; top:-9px; transform:translateX(-50%); width:17px; height:17px; border-radius:50%; background:#e11d48; color:#fff; font-size:12px; font-weight:700; line-height:16px; text-align:center; cursor:pointer; pointer-events:auto; box-shadow:0 1px 3px rgba(0,0,0,.3); user-select:none;}
+  .pin-del:hover{background:#be123c;}
   .pin-lb:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
   .map-tip{font-size:12px; color:var(--tx3); margin-top:10px;}
   .pick-q{width:100%; padding:8px 11px; border:1px solid var(--bd); border-radius:8px; font-size:13px; font-family:inherit; background:var(--bg2); color:var(--tx);}
@@ -2833,15 +2835,28 @@ function pickEntryForPin(){
     document.addEventListener('keydown', onKey);
     function fill(){
       const q = mask.querySelector('#pQ').value.trim().toLowerCase();
-      const arr = list.filter(e=>!q || namesOf(e).join(' ').toLowerCase().indexOf(q) >= 0);
-      mask.querySelector('#pList').innerHTML = arr.length
-        ? arr.map(e=>{
+      const matched = list.filter(e=>!q || namesOf(e).join(' ').toLowerCase().indexOf(q) >= 0);
+      let h = '';
+      for(const tk of Object.keys(TYPES)){
+        const es = matched.filter(e=>e.type===tk);
+        if(!es.length) continue;
+        const col = !!ui.collapsed[tk];
+        h += '<div class="gs-type'+(col?' collapsed':'')+'">' +
+          '<span class="gch" data-type="'+tk+'">'+(col?'▸':'▾')+'</span>' +
+          TYPES[tk].label + '<span>'+es.length+'</span></div>';
+        if(!col){
+          for(const e of es){
             const tp = TYPES[e.type] || TYPES.lore;
-            return '<div class="pick-row" data-id="'+esc(e.id)+'">' +
+            h += '<div class="pick-row" data-id="'+esc(e.id)+'">' +
               '<span class="dot" style="background:'+tp.color+'"></span>'+esc(e.name)+
               '<span class="pt">'+tp.label+'</span></div>';
-          }).join('')
-        : '<div class="era-empty">没有匹配的词条</div>';
+          }
+        }
+      }
+      mask.querySelector('#pList').innerHTML = h || '<div class="era-empty">'+(q?'没有匹配的词条':'还没有词条')+'</div>';
+      mask.querySelectorAll('.gch').forEach(ch=>ch.onclick = ()=>{
+        const tk = ch.dataset.type; ui.collapsed[tk] = !ui.collapsed[tk]; fill();
+      });
       mask.querySelectorAll('.pick-row').forEach(r=>{
         r.onclick = ()=>{ close(); resolve(r.dataset.id); };
       });
@@ -2889,10 +2904,11 @@ function renderMaps(){
       '<img class="map-img" id="mapImg" src="'+esc(url)+'" alt="'+esc(m.name)+'">' +
       '<div class="map-pins">' + (m.pins||[]).map((p,i)=>
         '<div class="map-pin" style="left:'+(p.x*100).toFixed(3)+'%;top:'+(p.y*100).toFixed(3)+'%">' +
-        '<span class="pin-dot"></span><span class="pin-lb" data-i="'+i+'">'+esc(shortEntryName(p.entry))+'</span></div>').join('') +
+        '<span class="pin-dot"></span><span class="pin-lb" data-i="'+i+'">'+esc(shortEntryName(p.entry))+'</span>' +
+        (editing ? '<span class="pin-del" data-i="'+i+'" title="删除标记">×</span>' : '') + '</div>').join('') +
       '</div></div>' +
       '<p class="map-tip">'+(editing
-        ? '标记模式已开启：在图上任意位置点击，然后选择要关联的词条。'
+        ? '标记模式已开启：点击图上位置添加标记；点标记上方的 × 可删除。'
         : '点标记上的名字可打开词条 · 当前地图 '+(m.pins||[]).length+' 个标记')+'</p>';
     ui.mapId = cur;
     box.querySelectorAll('.pin-lb').forEach(el=>{
@@ -2900,6 +2916,16 @@ function renderMaps(){
         ev.stopPropagation();
         const p = (maps.find(x=>x.id===cur).pins||[])[+el.dataset.i];
         if(p && p.entry){ ui.tab='entries'; ui.openId=p.entry; ui.editing=undefined; render(); }
+      };
+    });
+    box.querySelectorAll('.pin-del').forEach(el=>{
+      el.onclick = async ev=>{
+        ev.stopPropagation();
+        const i = +el.dataset.i, m2 = maps.find(x=>x.id===cur);
+        if(!m2 || !m2.pins || !confirm('删除这个标记？')) return;
+        m2.pins.splice(i, 1);
+        await mapsSave(maps);
+        render();
       };
     });
     if(editing){
